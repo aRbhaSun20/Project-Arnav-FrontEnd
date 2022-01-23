@@ -1,7 +1,7 @@
 import * as React from "react";
 import NavbarAfter from "../../Components/Navbar/NavbarAfter";
 import LeftBar from "./LeftBar";
-import LocationDetails from "./LocationDetails";
+// import LocationDetails from "./LocationDetails";
 
 export default function AuthorityDashboard() {
   return (
