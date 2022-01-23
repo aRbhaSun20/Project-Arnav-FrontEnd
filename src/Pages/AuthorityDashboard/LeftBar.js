@@ -165,7 +165,7 @@ export default function LeftBar() {
           }}
         />
       ),
-      link: "/pharmacyMap",
+      link: "/locationMap",
     },
     {
       title: "Logout",

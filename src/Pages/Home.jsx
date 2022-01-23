@@ -25,7 +25,7 @@ export default function Home() {
           <div
             style={{
               display: "grid",
-              gridTemplateRows: "1fr .5fr .5fr 1.5fr",
+              gridTemplateRows: "1fr .5fr  1.5fr",
               height: "75%",
               margin: "auto",
               width: "100%",
@@ -60,74 +60,9 @@ export default function Home() {
               <Typography
                 style={{ width: "60%", fontSize: "1.2rem", color: "#383838" }}
               >
-                Welcome to Arnav service platform, travel with ease. Book
-                your tickets right now.
+                Welcome to Arnav service platform, travel with ease. Search
+                your desired locations right now.
               </Typography>
-            </div>
-            <div
-              style={{
-                display: "grid",
-                alignItems: "center",
-                justifyContent: "flex-start",
-                width: "90%",
-                textAlign: "start",
-                margin: "auto",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  columnGap: "1rem",
-                }}
-              >
-                <Typography
-                  style={{
-                    width: "auto",
-                    fontSize: "1.2rem",
-                    color: "#383838",
-                  }}
-                >
-                  Train 1 status:
-                </Typography>
-                <Typography
-                  style={{
-                    width: "auto",
-                    fontSize: "1.2rem",
-                    color: "#383838",
-                  }}
-                >
-                  online
-                </Typography>
-              </div>{" "}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  columnGap: "1rem",
-                }}
-              >
-                <Typography
-                  style={{
-                    width: "auto",
-                    fontSize: "1.2rem",
-                    color: "#383838",
-                  }}
-                >
-                  Train 2 status:
-                </Typography>
-                <Typography
-                  style={{
-                    width: "auto",
-                    fontSize: "1.2rem",
-                    color: "#383838",
-                  }}
-                >
-                  offline
-                </Typography>
-              </div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
               <div

@@ -21,7 +21,7 @@ export default function Router() {
           <Route path="explorershistory" element={<AuthorityHistory />} />
           <Route path="explorersrequest" element={<AuthorityRequest />} />
           <Route path="explorerschat" element={<AuthorityChat />} />
-          <Route path="pharmacyMap" element={<LocationMap />} />
+          <Route path="locationMap" element={<LocationMap />} />
         </Routes>
       </BrowserRouter>
     </React.Fragment>

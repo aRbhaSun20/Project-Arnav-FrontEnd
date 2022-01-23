@@ -18,7 +18,7 @@ export default function AuthorityRequest() {
           }}
         >
           <NavbarAfter />
-          <LocationDetails />
+          {/* <LocationDetails /> */}
         </div>
       </div>
     </React.Fragment>
