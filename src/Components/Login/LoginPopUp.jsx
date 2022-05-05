@@ -33,7 +33,7 @@ export default function LoginPopUp() {
     setLogin((state) => ({ ...state, [name]: value }));
   };
 
-  const HandleSubmit = async () => {
+  const handleSubmit = async () => {
     try {
       const { login } = await axiosSendRequest(AXIOS_ACTIONS.POST, {
         query: `mutation updateUserCity($name: String!, $password: String!) {
@@ -42,6 +42,7 @@ export default function LoginPopUp() {
             name
             email
             age
+            token
         }
       }`,
         variables: loginData,
@@ -155,7 +156,7 @@ export default function LoginPopUp() {
                 color: "white",
                 fontWeight: "bold",
               }}
-              onClick={HandleSubmit}
+              onClick={handleSubmit}
             >
               Login
             </Button>

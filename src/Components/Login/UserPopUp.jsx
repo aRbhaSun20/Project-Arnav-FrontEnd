@@ -3,6 +3,12 @@ import React, { useState } from "react";
 import DateAdapter from "@mui/lab/AdapterLuxon";
 import { DatePicker, LocalizationProvider } from "@mui/lab";
 import { DateTime } from "luxon";
+import { axiosSendRequest, AXIOS_ACTIONS } from "../../util/AxiosRequest";
+import { useDispatch } from "react-redux";
+import { useSnackbar } from "notistack";
+import { USER_ACTIONS } from "../../Context/UserReducers";
+import { NAV_ACTIONS } from "../../Context/NavigationReducers";
+import { useNavigate } from "react-router";
 
 const style = {
   position: "absolute",
@@ -16,7 +22,52 @@ const style = {
 };
 
 export default function UserPopUp({ openPopUp, setOpenPopUp }) {
+  const [loginData, setLogin] = useState({ name: "", password: "" });
+  const dispatch = useDispatch();
+  const history = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setLogin((state) => ({ ...state, [name]: value }));
+  };
+
   const [currentDate, setCurrentDate] = useState(DateTime.now());
+  const handleSubmit = async () => {
+    try {
+      const { login } = await axiosSendRequest(AXIOS_ACTIONS.POST, {
+        query: `mutation updateUserCity($name: String!, $password: String!) {
+          signUpUser(name: $name, email: $email, age: $age, password: $password, location: [1, 0]) {
+            _id
+            name
+            age
+            email
+            password
+            token
+          }
+      }`,
+        variables: loginData,
+      });
+      enqueueSnackbar("Login Succesful", { variant: "success" });
+      dispatch({
+        type: NAV_ACTIONS.NAV_CHANGE,
+        payload: { loginPopUp: false, loginStatus: true, ...login },
+      });
+      dispatch({
+        type: USER_ACTIONS.LOGIN,
+        payload: login,
+      });
+      history(
+        `${
+          openPopUp.loginType === "Explorers"
+            ? "Explorersdashboard"
+            : "authoritydashboard"
+        }`
+      );
+    } catch {
+      enqueueSnackbar("Login Failed", { variant: "error" });
+    }
+  };
   return (
     <React.Fragment>
       <Modal
@@ -58,23 +109,28 @@ export default function UserPopUp({ openPopUp, setOpenPopUp }) {
             <TextField
               variant="outlined"
               label="First Name"
+              name=""
+              onChange={handleChange}
               style={{ width: "100%" }}
             />
             <TextField
               variant="outlined"
               label="Last Name"
+              onChange={handleChange}
               style={{ width: "100%" }}
             />
             <TextField
               variant="outlined"
               label="Phone Number"
               type="number"
+              onChange={handleChange}
               style={{ width: "100%" }}
             />
             <TextField
               variant="outlined"
               label="Email Id"
               type="email"
+              onChange={handleChange}
               style={{ width: "100%" }}
             />
             <LocalizationProvider dateAdapter={DateAdapter}>
@@ -92,18 +148,21 @@ export default function UserPopUp({ openPopUp, setOpenPopUp }) {
             <TextField
               variant="outlined"
               label="Address"
+              onChange={handleChange}
               style={{ width: "100%" }}
             />
             <TextField
               variant="outlined"
               label="Password"
               type="password"
+              onChange={handleChange}
               style={{ width: "100%" }}
             />
             <TextField
               variant="outlined"
               label="Confirm Password"
               type="password"
+              onChange={handleChange}
               style={{ width: "100%" }}
             />
           </div>
@@ -144,15 +203,16 @@ export default function UserPopUp({ openPopUp, setOpenPopUp }) {
                   color: "white",
                   fontWeight: "bold",
                 }}
+                onClick={handleSubmit}
               >
                 Register
               </Button>
             </div>
 
             <Typography style={{ fontSize: ".7rem", textAlign: "center" }}>
-              Please upload the relevant document for emergency situations for the 
-              choice of transport in case of failure ..
-              this data will be secure and only used to treat you effectively
+              Please upload the relevant document for emergency situations for
+              the choice of transport in case of failure .. this data will be
+              secure and only used to treat you effectively
             </Typography>
           </div>
         </Paper>
