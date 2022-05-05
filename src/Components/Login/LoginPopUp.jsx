@@ -1,9 +1,12 @@
 import { Button, Modal, Paper, TextField, Typography } from "@mui/material";
-import React from "react";
+import { useSnackbar } from "notistack";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import PeopleLogo from "../../assets/people-logo.png";
 import { NAV_ACTIONS } from "../../Context/NavigationReducers";
+import { USER_ACTIONS } from "../../Context/UserReducers";
+import { axiosSendRequest, AXIOS_ACTIONS } from "../../util/AxiosRequest";
 
 const style = {
   position: "absolute",
@@ -18,8 +21,52 @@ const style = {
 
 export default function LoginPopUp() {
   const history = useNavigate();
+  const [loginData, setLogin] = useState({ name: "", password: "" });
+  // const { refetch: LoginRefetch, data: LoginData } = useLoginQuery(loginData);
+
   const openPopUp = useSelector((state) => state.navigation);
   const dispatch = useDispatch();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setLogin((state) => ({ ...state, [name]: value }));
+  };
+
+  const HandleSubmit = async () => {
+    try {
+      const { login } = await axiosSendRequest(AXIOS_ACTIONS.POST, {
+        query: `mutation updateUserCity($name: String!, $password: String!) {
+        login(user : $name , password: $password) {
+            _id
+            name
+            email
+            age
+        }
+      }`,
+        variables: loginData,
+      });
+      enqueueSnackbar("Login Succesful", { variant: "success" });
+      dispatch({
+        type: NAV_ACTIONS.NAV_CHANGE,
+        payload: { loginPopUp: false, loginStatus: true, ...login },
+      });
+      dispatch({
+        type: USER_ACTIONS.LOGIN,
+        payload: login,
+      });
+      history(
+        `${
+          openPopUp.loginType === "Explorers"
+            ? "Explorersdashboard"
+            : "authoritydashboard"
+        }`
+      );
+    } catch {
+      enqueueSnackbar("Login Failed", { variant: "error" });
+    }
+  };
+
   return (
     <React.Fragment>
       <Modal
@@ -54,7 +101,13 @@ export default function LoginPopUp() {
             }}
           >
             <img src={PeopleLogo} style={{ width: "7rem" }} alt="people-log" />
-            <Typography style={{ fontSize: 24, textTransform: "uppercase",textAlign:"center" }}>
+            <Typography
+              style={{
+                fontSize: 24,
+                textTransform: "uppercase",
+                textAlign: "center",
+              }}
+            >
               welcome to Arnav as {openPopUp.loginType}
             </Typography>
           </div>
@@ -69,12 +122,18 @@ export default function LoginPopUp() {
             <TextField
               variant="outlined"
               label="Username"
+              name="name"
+              onChange={handleChange}
+              value={loginData.name}
               style={{ width: 400 }}
             />
             <TextField
               variant="outlined"
               label="Password"
               type="password"
+              name="password"
+              onChange={handleChange}
+              value={loginData.password}
               style={{ width: 400 }}
             />
           </div>
@@ -96,19 +155,7 @@ export default function LoginPopUp() {
                 color: "white",
                 fontWeight: "bold",
               }}
-              onClick={() => {
-                history(
-                  `${
-                    openPopUp.loginType === "Explorers"
-                      ? "Explorersdashboard"
-                      : "authoritydashboard"
-                  }`
-                );
-                dispatch({
-                  type: NAV_ACTIONS.NAV_CHANGE,
-                  payload: { loginPopUp: false, loginStatus: true },
-                });
-              }}
+              onClick={HandleSubmit}
             >
               Login
             </Button>

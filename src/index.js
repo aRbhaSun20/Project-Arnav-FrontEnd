@@ -7,6 +7,7 @@ import { Provider } from "react-redux";
 import { createStore } from "redux";
 import { QueryClient, QueryClientProvider } from "react-query";
 import allReducers from "./Context";
+import { ReactQueryDevtools } from "react-query/devtools";
 
 const dataStore = createStore(
   allReducers,
@@ -14,7 +15,7 @@ const dataStore = createStore(
 );
 
 export const queryClient = new QueryClient({
-	defaultOptions: { queries: { refetchOnWindowFocus: false } },
+  defaultOptions: { queries: { refetchOnWindowFocus: false } },
 });
 
 ReactDOM.render(
@@ -22,6 +23,7 @@ ReactDOM.render(
     <Provider store={dataStore}>
       <QueryClientProvider client={queryClient}>
         <App />
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </Provider>
   </React.StrictMode>,

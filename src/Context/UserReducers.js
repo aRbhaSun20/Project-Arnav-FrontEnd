@@ -3,10 +3,19 @@ export const USER_ACTIONS = {
   LOGOUT: "logout",
 };
 
-export const UserReducers = (InitialState = {}, actions) => {
+export const UserReducers = (
+  InitialState = {
+    _id: "",
+    name: "",
+    email: "",
+    phone: "",
+    token: "",
+  },
+  actions
+) => {
   switch (actions.type) {
     case USER_ACTIONS.LOGIN:
-      return InitialState;
+      return { ...InitialState, ...actions.payload };
 
     default:
       return InitialState;
