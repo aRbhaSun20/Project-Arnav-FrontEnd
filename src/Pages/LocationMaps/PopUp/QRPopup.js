@@ -1,10 +1,9 @@
-import { Button, Modal, Paper } from "@mui/material";
+import { Button, Modal, Paper, Typography } from "@mui/material";
 import React, { useState } from "react";
 import QrReader from "react-qr-scanner";
 
 const previewStyle = {
-  height: 240,
-  width: 320,
+  width: "75rem",
 };
 
 const style = {
@@ -48,13 +47,23 @@ function QRPopup({ openPopUp, setOpenPopup }) {
             display: "grid",
             gridGap: "1rem",
             borderRadius: "1rem",
-            width: "25%",
+            width: "max-content",
+            height: "92vh",
+            minWidth: "75rem",
           }}
         >
           {" "}
           {result ? (
-            <div>
-              {result}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Typography>{result}</Typography>
+
               <Button
                 variant="contained"
                 style={{
@@ -75,6 +84,7 @@ function QRPopup({ openPopUp, setOpenPopup }) {
               style={previewStyle}
               onError={handleError}
               onScan={handleScan}
+              facingMode="rear"
             />
           )}
         </Paper>
