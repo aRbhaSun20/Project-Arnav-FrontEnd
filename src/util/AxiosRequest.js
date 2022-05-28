@@ -4,7 +4,7 @@ export const AXIOS_ACTIONS = {
   QUERY: "query",
   MUTATION: "mutation",
   DELETE: "DELETE",
-  URL: "http://localhost:5000/graphql",
+  URL: "https://arnav-backend.herokuapp.com/graphql",
   HEADERS: {
     "Content-Type": "application/json",
   },
