@@ -14,7 +14,9 @@ export const useLocationQuery = () => {
             _id
             placeName
             coordinates
-            userId
+            user {
+              name
+            }
           }
       }`,
       });
