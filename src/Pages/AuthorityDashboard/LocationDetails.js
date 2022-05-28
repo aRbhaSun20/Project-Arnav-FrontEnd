@@ -5,8 +5,7 @@ import {
   Delete,
   Edit,
   Info,
-  Sms,
-  VideoCall,
+  ReadMore,
 } from "@mui/icons-material";
 import {
   AppBar,
@@ -58,9 +57,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function LocationDetails() {
   const classes = useStyles();
-  const {
-    data: { locations },
-  } = useLocationQuery();
+  const { data } = useLocationQuery();
 
   return (
     <React.Fragment>
@@ -132,42 +129,38 @@ export default function LocationDetails() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {Array.isArray(locations) &&
-                locations?.map((row, i) => (
-                  <TableRow
-                    key={row.name}
+              {data?.locations?.map((row, i) => (
+                <TableRow
+                  key={row.name}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(4,1fr)",
+                    width: "100%",
+                    backgroundColor: i % 2 === 0 ? "#f1f1f1" : null,
+                  }}
+                >
+                  <TableCell>{row?.user?.name}</TableCell>
+                  <TableCell>{row.placeName}</TableCell>
+                  <TableCell>{row.status}</TableCell>
+                  <TableCell
                     style={{
                       display: "grid",
                       gridTemplateColumns: "repeat(4,1fr)",
-                      width: "100%",
-                      backgroundColor: i % 2 === 0 ? "#f1f1f1" : null,
+                      width: "75%",
                     }}
                   >
-                    <TableCell>{row.user}</TableCell>
-                    <TableCell>{row.placeName}</TableCell>
-                    <TableCell>{row.status}</TableCell>
-                    <TableCell
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(4,1fr)",
-                        width: "75%",
-                      }}
-                    >
-                      <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
-                        <Edit style={{ fonSize: "1.5rem" }} />
-                      </IconButton>
-                      <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
-                        <Delete style={{ fontSize: "1.5rem" }} />
-                      </IconButton>
-                      <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
-                        <Sms style={{ fontSize: "1.5rem" }} />
-                      </IconButton>
-                      <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
-                        <VideoCall style={{ fontSize: "2rem" }} />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                    <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
+                      <Edit style={{ fonSize: "1.5rem" }} />
+                    </IconButton>
+                    <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
+                      <Delete style={{ fontSize: "1.5rem" }} />
+                    </IconButton>
+                    <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
+                      <ReadMore style={{ fontSize: "1.5rem" }} />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>

@@ -1,6 +1,7 @@
 import { Button, Modal, Paper, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import QrReader from "react-qr-scanner";
+import { useParticularLocationQuery } from "../../../Context/Locations";
 
 const previewStyle = {
   width: "75rem",
@@ -20,15 +21,26 @@ const style = {
 function QRPopup({ openPopUp, setOpenPopup }) {
   // eslint-disable-next-line no-unused-vars
   const [delay, setDelay] = useState(100);
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState("");
+  const { SelectedLocation, SelectedLocationRefetch } =
+    useParticularLocationQuery(result);
 
   const handleScan = (data) => {
-    if (data && data.text) setResult(data.text);
+    if (data && data.text) {
+      // console.log(JSON.parse(data.text))
+      // const formatData = JSON.parse(data.text);
+      if (result !== data.text) setResult(data.text);
+    }
   };
 
   const handleError = (err) => {
     console.error(err);
   };
+
+  useEffect(() => {
+    if (result) SelectedLocationRefetch();
+    // eslint-disable-next-line
+  }, [result]);
 
   return (
     <React.Fragment>
@@ -62,7 +74,7 @@ function QRPopup({ openPopUp, setOpenPopup }) {
                 justifyContent: "center",
               }}
             >
-              <Typography>{result}</Typography>
+              <Typography>{SelectedLocation?.location?.placeName}</Typography>
 
               <Button
                 variant="contained"
@@ -73,7 +85,7 @@ function QRPopup({ openPopUp, setOpenPopup }) {
                   borderRadius: 8,
                   fontWeight: "bold",
                 }}
-                onClick={() => setResult(null)}
+                onClick={() => setResult("")}
               >
                 Retake Results
               </Button>
