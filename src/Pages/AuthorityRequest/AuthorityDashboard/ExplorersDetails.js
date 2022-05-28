@@ -123,21 +123,18 @@ export default function ExplorersDetails() {
               <TableRow
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(5,1fr)",
+                  gridTemplateColumns: "repeat(4,1fr)",
                   width: "100%",
                 }}
               >
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Explorers
+                  Explorer
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Status
+                  Place Name
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Request Type
-                </TableCell>
-                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Requested Slots
+                  Request Status
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
                   Actions

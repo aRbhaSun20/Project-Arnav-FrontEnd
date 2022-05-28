@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import DateAdapter from "@mui/lab/AdapterLuxon";
 import { DatePicker, LocalizationProvider } from "@mui/lab";
 import { DateTime } from "luxon";
-import { axiosSendRequest, AXIOS_ACTIONS } from "../../util/AxiosRequest";
+import { axiosSendGraphQlRequest } from "../../util/AxiosRequest";
 import { useDispatch } from "react-redux";
 import { useSnackbar } from "notistack";
 import { USER_ACTIONS } from "../../Context/UserReducers";
@@ -35,7 +35,7 @@ export default function UserPopUp({ openPopUp, setOpenPopUp }) {
   const [currentDate, setCurrentDate] = useState(DateTime.now());
   const handleSubmit = async () => {
     try {
-      const { login } = await axiosSendRequest(AXIOS_ACTIONS.POST, {
+      const { login } = await axiosSendGraphQlRequest({
         query: `mutation updateUserCity($name: String!, $password: String!) {
           signUpUser(name: $name, email: $email, age: $age, password: $password, location: [1, 0]) {
             _id

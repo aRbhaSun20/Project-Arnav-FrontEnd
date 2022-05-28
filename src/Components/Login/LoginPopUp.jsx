@@ -6,7 +6,7 @@ import { useNavigate } from "react-router";
 import PeopleLogo from "../../assets/people-logo.png";
 import { NAV_ACTIONS } from "../../Context/NavigationReducers";
 import { USER_ACTIONS } from "../../Context/UserReducers";
-import { axiosSendRequest, AXIOS_ACTIONS } from "../../util/AxiosRequest";
+import { axiosSendGraphQlRequest } from "../../util/AxiosRequest";
 
 const style = {
   position: "absolute",
@@ -35,8 +35,11 @@ export default function LoginPopUp() {
 
   const handleSubmit = async () => {
     try {
-      const { login } = await axiosSendRequest(AXIOS_ACTIONS.POST, {
-        query: `mutation updateUserCity($name: String!, $password: String!) {
+      const {
+        data: { login },
+        errors,
+      } = await axiosSendGraphQlRequest({
+        query: `mutation loginUser($name: String!, $password: String!) {
         login(user : $name , password: $password) {
             _id
             name
@@ -47,22 +50,28 @@ export default function LoginPopUp() {
       }`,
         variables: loginData,
       });
-      enqueueSnackbar("Login Succesful", { variant: "success" });
-      dispatch({
-        type: NAV_ACTIONS.NAV_CHANGE,
-        payload: { loginPopUp: false, loginStatus: true, ...login },
-      });
-      dispatch({
-        type: USER_ACTIONS.LOGIN,
-        payload: login,
-      });
-      history(
-        `${
-          openPopUp.loginType === "Explorers"
-            ? "Explorersdashboard"
-            : "authoritydashboard"
-        }`
-      );
+      if (login) {
+        enqueueSnackbar("Login Succesful", { variant: "success" });
+        dispatch({
+          type: NAV_ACTIONS.NAV_CHANGE,
+          payload: { loginPopUp: false, loginStatus: true, ...login },
+        });
+        dispatch({
+          type: USER_ACTIONS.LOGIN,
+          payload: login,
+        });
+        history(
+          `${
+            openPopUp.loginType === "Explorers"
+              ? "Explorersdashboard"
+              : "authoritydashboard"
+          }`
+        );
+      }
+
+      if (Array.isArray(errors) && errors[0]) {
+        enqueueSnackbar(errors[0].message, { variant: "error" });
+      }
     } catch {
       enqueueSnackbar("Login Failed", { variant: "error" });
     }

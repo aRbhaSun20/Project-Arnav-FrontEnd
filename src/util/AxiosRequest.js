@@ -1,10 +1,10 @@
 import axios from "axios";
 
 export const AXIOS_ACTIONS = {
-  GET: "GET",
-  POST: "POST",
+  QUERY: "query",
+  MUTATION: "mutation",
   DELETE: "DELETE",
-  URL: "https://arnav-backend.herokuapp.com/graphql",
+  URL: "http://localhost:5000/graphql",
   HEADERS: {
     "Content-Type": "application/json",
   },
@@ -28,23 +28,23 @@ export const MAILING_ACIONS = {
 };
 
 export const axiosSendRequest = async (type, sendData, url) => {
-//   let config = {};
+  let config = null;
 
   switch (type) {
     case AXIOS_ACTIONS.GET:
-    //   config = {
-    //     method: "get",
-    //     url: `${AXIOS_ACTIONS.URL}`,
-    //   };
+      config = {
+        method: "get",
+        url: `${AXIOS_ACTIONS.URL}`,
+      };
       break;
 
     case AXIOS_ACTIONS.POST:
-    //   config = {
-    //     method: "post",
-    //     url: `${AXIOS_ACTIONS.URL}`,
-    //     headers: AXIOS_ACTIONS.HEADERS,
-    //     data: sendData,
-    //   };
+      config = {
+        method: "post",
+        url: `${AXIOS_ACTIONS.URL}`,
+        headers: AXIOS_ACTIONS.HEADERS,
+        data: sendData,
+      };
       break;
 
     case AXIOS_ACTIONS.DELETE:
@@ -52,20 +52,40 @@ export const axiosSendRequest = async (type, sendData, url) => {
       formDelete.append("user_id", sendData.user_id);
       formDelete.append("token", sendData.token);
       formDelete.append("name", sendData.name);
-    //   config = {
-    //     method: "post",
-    //     url: `${AXIOS_ACTIONS.URL}`,
-    //     data: formDelete,
-    //   };
+      config = {
+        method: "post",
+        url: `${AXIOS_ACTIONS.URL}`,
+        data: formDelete,
+      };
       break;
 
     default:
       return null;
   }
 
-  const { data } = await axios
-    .post(AXIOS_ACTIONS.URL, sendData, AXIOS_ACTIONS.HEADERS)
-    .catch((e) => console.error(e));
+  try {
+    const { data } = await axios(config);
+    return data;
+  } catch (e) {
+    if (e.response) {
+      throw e.response.data;
+    } else if (e.request) {
+      throw e.request.response;
+    } else {
+      throw e.message;
+    }
+  }
+};
 
-  return data;
+export const axiosSendGraphQlRequest = async (sendData) => {
+  if (sendData) {
+    const {
+      data: { data, errors },
+    } = await axios
+      .post(AXIOS_ACTIONS.URL, sendData, AXIOS_ACTIONS.HEADERS)
+      .catch((e) => console.error(e));
+
+    return { data, errors };
+  }
+  return null;
 };

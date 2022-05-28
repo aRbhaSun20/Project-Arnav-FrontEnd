@@ -22,6 +22,8 @@ import {
   Typography,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
+import { useLocationQuery } from "../../Context/Locations";
+
 const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
@@ -54,23 +56,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData("demo", "pending", "general checkup", "9am-11am | 5/11/2021"),
-  createData("demo2", "processing", "eye checkup", "9am-11am | 5/11/2021"),
-  createData("demo3", "done", "heart checkup", "9am-11am | 5/11/2021"),
-  createData("demo", "pending", "general checkup", "9am-11am | 5/11/2021"),
-  createData("demo2", "processing", "eye checkup", "9am-11am | 5/11/2021"),
-  createData("demo3", "done", "heart checkup", "9am-11am | 5/11/2021"),
-  createData("demo", "pending", "general checkup", "9am-11am | 5/11/2021"),
-  createData("demo2", "processing", "eye checkup", "9am-11am | 5/11/2021"),
-  createData("demo3", "done", "heart checkup", "9am-11am | 5/11/2021"),
-];
 export default function LocationDetails() {
   const classes = useStyles();
+  const {
+    data: { locations },
+  } = useLocationQuery();
+
   return (
     <React.Fragment>
       <Paper
@@ -79,7 +70,6 @@ export default function LocationDetails() {
           width: "98%",
           margin: "0 auto",
           borderRadius: "1rem",
-          height: "66vh",
         }}
       >
         <AppBar
@@ -114,7 +104,7 @@ export default function LocationDetails() {
           style={{
             margin: "1rem",
             width: "98%",
-            maxHeight: "55vh",
+            maxHeight: "98vh",
             overflow: "auto",
           }}
         >
@@ -123,21 +113,18 @@ export default function LocationDetails() {
               <TableRow
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(5,1fr)",
+                  gridTemplateColumns: "repeat(4,1fr)",
                   width: "100%",
                 }}
               >
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Explorers
+                  Explorer
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Status
+                  Place Name
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Request Type
-                </TableCell>
-                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Requested Slots
+                  Request Status
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
                   Actions
@@ -145,42 +132,42 @@ export default function LocationDetails() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row, i) => (
-                <TableRow
-                  key={row.name}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(5,1fr)",
-                    width: "100%",
-                    backgroundColor: i % 2 === 0 ? "#f1f1f1" : null,
-                  }}
-                >
-                  <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.calories}</TableCell>
-                  <TableCell>{row.fat}</TableCell>
-                  <TableCell>{row.carbs}</TableCell>
-                  <TableCell
+              {Array.isArray(locations) &&
+                locations?.map((row, i) => (
+                  <TableRow
+                    key={row.name}
                     style={{
                       display: "grid",
                       gridTemplateColumns: "repeat(4,1fr)",
-                      width: "75%",
+                      width: "100%",
+                      backgroundColor: i % 2 === 0 ? "#f1f1f1" : null,
                     }}
                   >
-                    <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
-                      <Edit style={{ fonSize: "1.5rem" }} />
-                    </IconButton>
-                    <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
-                      <Delete style={{ fontSize: "1.5rem" }} />
-                    </IconButton>
-                    <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
-                      <Sms style={{ fontSize: "1.5rem" }} />
-                    </IconButton>
-                    <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
-                      <VideoCall style={{ fontSize: "2rem" }} />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    <TableCell>{row.user}</TableCell>
+                    <TableCell>{row.placeName}</TableCell>
+                    <TableCell>{row.status}</TableCell>
+                    <TableCell
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(4,1fr)",
+                        width: "75%",
+                      }}
+                    >
+                      <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
+                        <Edit style={{ fonSize: "1.5rem" }} />
+                      </IconButton>
+                      <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
+                        <Delete style={{ fontSize: "1.5rem" }} />
+                      </IconButton>
+                      <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
+                        <Sms style={{ fontSize: "1.5rem" }} />
+                      </IconButton>
+                      <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
+                        <VideoCall style={{ fontSize: "2rem" }} />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>
