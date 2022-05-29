@@ -26,9 +26,10 @@ const style = {
 
 function AddVideos({ openPopUp, setOpenPopup }) {
   const [placeName, setLocation] = useState({});
+  // eslint-disable-next-line no-unused-vars
   const [coordinates, setCoordinates] = useState(null);
-  const { LocationRefetch } = useLocationQuery();
-  const user = useSelector((state) => state.user);
+  // const { LocationRefetch } = useLocationQuery();
+  // const user = useSelector((state) => state.user);
 
   // useEffect(() => {
   //   if (navigator.geolocation) {
@@ -45,7 +46,6 @@ function AddVideos({ openPopUp, setOpenPopup }) {
       console.log(URL.toString(placeName));
       const {
         data: { addVideo },
-        errors,
       } = await axiosSendGraphQlRequest({
         query: `mutation addVideo($placeName: String) {
           uploadVideo( filename: $placeName) {
