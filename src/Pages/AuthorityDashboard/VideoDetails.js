@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 import IconButton from "@mui/material/IconButton";
-import {
-  AddBox,
-  Delete,
-  Edit,
-  Info,
-  ReadMore,
-} from "@mui/icons-material";
+import { AddBox, Delete, Edit, Info, ReadMore } from "@mui/icons-material";
 import {
   AppBar,
   Paper,
@@ -21,10 +15,10 @@ import {
   Typography,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { useLocationQuery } from "../../Context/Locations";
-import AddLocations from "./AddLocations";
-import EditLocations from "./EditLocations";
-import DeleteLocations from "./DeleteLocations";
+import AddVideos from "./AddVideo";
+import { useVideoQuery } from "../../Context/Video";
+// import EditVideos from "./EditVideos";
+// import DeleteVideos from "./DeleteVideos";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -60,11 +54,11 @@ const useStyles = makeStyles((theme) => ({
 
 export default function VideoDetails() {
   const classes = useStyles();
-  const { data } = useLocationQuery();
-  const [openAddLocation, setOpenAddLocation] = useState(false);
+  const { data } = useVideoQuery();
+  const [openAddVideo, setOpenAddVideo] = useState(false);
   const [selected, setSelected] = useState({ _id: "" });
-  const [openEditLocation, setOpenEditLocation] = useState(false);
-  const [openDeleteLocation, setOpenDeleteLocation] = useState(false);
+  const [openEditVideo, setOpenEditVideo] = useState(false);
+  const [openDeleteVideo, setOpenDeleteVideo] = useState(false);
 
   return (
     <React.Fragment>
@@ -86,7 +80,7 @@ export default function VideoDetails() {
         >
           <Toolbar>
             <div className={classes.title}>
-              <Typography variant="h6">Location Details</Typography>
+              <Typography variant="h6">Video Details</Typography>
               <IconButton>
                 <Info />
               </IconButton>
@@ -95,11 +89,11 @@ export default function VideoDetails() {
               className={classes.iconBtnStyles}
               justifyContent="flex-end"
               onClick={() => {
-                setOpenAddLocation(true);
+                setOpenAddVideo(true);
               }}
               style={{ background: "blue" }}
             >
-              <Tooltip title="Add Locations">
+              <Tooltip title="Add Videos">
                 <AddBox style={{ fill: "white" }} />
               </Tooltip>
             </IconButton>
@@ -124,7 +118,7 @@ export default function VideoDetails() {
                 }}
               >
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Location
+                  Video
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
                   Place Name
@@ -138,7 +132,7 @@ export default function VideoDetails() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data?.locations?.map((row, i) => (
+              {data?.videos?.map((row, i) => (
                 <TableRow
                   key={row.name}
                   style={{
@@ -148,7 +142,8 @@ export default function VideoDetails() {
                     backgroundColor: i % 2 === 0 ? "#f1f1f1" : null,
                   }}
                 >
-                  <TableCell>{row?.user?.name}</TableCell>
+                  <img src={row} />
+                  <TableCell>{row?.filename}</TableCell>
                   <TableCell>{row.placeName}</TableCell>
                   <TableCell>{row.status}</TableCell>
                   <TableCell
@@ -162,21 +157,21 @@ export default function VideoDetails() {
                       style={{ width: "3.5rem", height: "3.5rem" }}
                       onClick={() => {
                         setSelected(row);
-                        setOpenEditLocation(true);
+                        setOpenEditVideo(true);
                       }}
                     >
-                      <Tooltip title="Edit Location">
+                      <Tooltip title="Edit Video">
                         <Edit style={{ fonSize: "1.5rem" }} />
                       </Tooltip>
                     </IconButton>
                     <IconButton
                       onClick={() => {
                         setSelected(row);
-                        setOpenDeleteLocation(true);
+                        setOpenDeleteVideo(true);
                       }}
                       style={{ width: "3.5rem", height: "3.5rem" }}
                     >
-                      <Tooltip title="Delete Location">
+                      <Tooltip title="Delete Video">
                         <Delete style={{ fontSize: "1.5rem" }} />
                       </Tooltip>
                     </IconButton>
@@ -192,20 +187,17 @@ export default function VideoDetails() {
           </Table>
         </TableContainer>
       </Paper>
-      <AddLocations
-        openPopUp={openAddLocation}
-        setOpenPopup={setOpenAddLocation}
-      />
-      <EditLocations
-        openPopUp={openEditLocation}
-        setOpenPopup={setOpenEditLocation}
+      <AddVideos openPopUp={openAddVideo} setOpenPopup={setOpenAddVideo} />
+      {/* <EditVideos
+        openPopUp={openEditVideo}
+        setOpenPopup={setOpenEditVideo}
         selected={selected}
       />
-      <DeleteLocations
-        openPopUp={openDeleteLocation}
-        setOpenPopup={setOpenDeleteLocation}
+      <DeleteVideos
+        openPopUp={openDeleteVideo}
+        setOpenPopup={setOpenDeleteVideo}
         selected={selected}
-      />{" "}
+      /> */}
     </React.Fragment>
   );
 }
