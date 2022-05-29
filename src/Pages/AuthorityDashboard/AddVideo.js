@@ -7,11 +7,11 @@ import {
   Input,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useLocationQuery } from "../../Context/Locations";
+import React, { useState } from "react";
+// import { useLocationQuery } from "../../Context/Locations";
 import { axiosSendGraphQlRequest } from "../../util/AxiosRequest";
 import { useSnackbar } from "notistack";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 
 const style = {
   position: "absolute",
