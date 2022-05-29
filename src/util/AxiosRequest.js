@@ -2,9 +2,11 @@ import axios from "axios";
 // http://localhost:5000/graphql
 export const AXIOS_ACTIONS = {
   QUERY: "query",
+  GET: "get",
+  POST: "post",
   MUTATION: "mutation",
   DELETE: "DELETE",
-  URL: "http://localhost:5000/graphql",
+  URL: "https://arnav-backend.herokuapp.com/graphql",
   HEADERS: {
     "Content-Type": "application/json",
   },
@@ -34,7 +36,7 @@ export const axiosSendRequest = async (type, sendData, url) => {
     case AXIOS_ACTIONS.GET:
       config = {
         method: "get",
-        url: `${AXIOS_ACTIONS.URL}`,
+        url,
       };
       break;
 

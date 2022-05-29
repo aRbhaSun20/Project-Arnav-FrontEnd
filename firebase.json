@@ -1,0 +1,7 @@
+{
+  "hosting": {
+    "site": "arnav-front-end",
+
+    "public": "public"
+  }
+}

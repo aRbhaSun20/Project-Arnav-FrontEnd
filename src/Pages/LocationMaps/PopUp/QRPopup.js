@@ -1,4 +1,5 @@
 import { Button, Modal, Paper, Typography } from "@mui/material";
+import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 import QrReader from "react-qr-scanner";
 import { useParticularLocationQuery } from "../../../Context/Locations";
@@ -24,12 +25,22 @@ function QRPopup({ openPopUp, setOpenPopup }) {
   const [result, setResult] = useState("");
   const { SelectedLocation, SelectedLocationRefetch } =
     useParticularLocationQuery(result);
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleScan = (data) => {
     if (data && data.text) {
       // console.log(JSON.parse(data.text))
       // const formatData = JSON.parse(data.text);
-      if (result !== data.text) setResult(data.text);
+      if (result !== data.text) {
+        setResult(data.text);
+        enqueueSnackbar("location fetched from QR succesfully", {
+          variant: "success",
+        });
+      } else {
+        enqueueSnackbar("error in QR code", {
+          variant: "error",
+        });
+      }
     }
   };
 
@@ -74,7 +85,9 @@ function QRPopup({ openPopUp, setOpenPopup }) {
                 justifyContent: "center",
               }}
             >
-              <Typography>{SelectedLocation?.location?.placeName}</Typography>
+              <Typography>
+                {JSON.stringify(SelectedLocation?.location)}
+              </Typography>
 
               <Button
                 variant="contained"

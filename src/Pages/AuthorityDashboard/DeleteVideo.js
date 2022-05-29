@@ -1,10 +1,9 @@
 import { Close } from "@mui/icons-material";
 import { Button, IconButton, Modal, Paper, Typography } from "@mui/material";
 import React from "react";
+import { useLocationQuery } from "../../Context/Locations";
+import { axiosSendGraphQlRequest } from "../../util/AxiosRequest";
 import { useSnackbar } from "notistack";
-  // eslint-disable-next-line
-import { useQRCode } from "react-qrcode";
-import { saveAs } from "file-saver";
 
 const style = {
   position: "absolute",
@@ -17,16 +16,37 @@ const style = {
   p: 4,
 };
 
-function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
+function DeleteVideos({ openPopUp, setOpenPopup, selected }) {
+  const { LocationRefetch } = useLocationQuery();
+
   const { enqueueSnackbar } = useSnackbar();
-    // eslint-disable-next-line
-  const dataUrl = useQRCode(selected?._id);
 
   const handleSubmit = async () => {
-    saveAs(dataUrl, `${selected?.placeName}.png`);
-    enqueueSnackbar("Location QR code Download successful", {
-      variant: "success",
-    });
+    try {
+      const {
+        data: { deleteLocation },
+        errors,
+      } = await axiosSendGraphQlRequest({
+        query: `mutation deleteLocation($_id: String!) {
+          deleteLocation( _id:$_id ) {
+              _id
+              placeName
+          }
+        }`,
+        variables: { _id: selected?._id },
+      });
+      if (deleteLocation) {
+        enqueueSnackbar("Location Delete Succesful", { variant: "success" });
+        LocationRefetch();
+        setOpenPopup(false);
+      }
+
+      if (Array.isArray(errors) && errors[0]) {
+        enqueueSnackbar(errors[0].message, { variant: "error" });
+      }
+    } catch {
+      enqueueSnackbar("Location delete Failed", { variant: "error" });
+    }
   };
 
   return (
@@ -58,7 +78,7 @@ function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
           }}
         >
           <Typography variant="h5">
-            <b>Generate Location QR Code</b>{" "}
+            <b>Delete Location</b>{" "}
           </Typography>
           <IconButton
             onClick={() => {
@@ -68,20 +88,10 @@ function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
             <Close />
           </IconButton>
         </div>
-        <div
-          style={{
-            display: "flex",
-            flexFlow: "column wrap",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <div style={{ display: "flex", flexFlow: "row wrap", gap: "1rem" }}>
           <Typography>
-            <b>Download {selected?.placeName} QR Code</b>{" "}
+            <b>Are you sure you want to delete {selected?.placeName}</b>
           </Typography>
-          {selected._id && (
-            <img src={dataUrl} style={{ width: "20rem" }} alt="qr-codes" />
-          )}
         </div>
         <div
           style={{
@@ -119,7 +129,7 @@ function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
             }}
             onClick={handleSubmit}
           >
-            Download
+            Submit
           </Button>
         </div>
       </Paper>
@@ -127,4 +137,4 @@ function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
   );
 }
 
-export default QRGenerateLocations;
+export default DeleteVideos;

@@ -1,10 +1,16 @@
 import { Close } from "@mui/icons-material";
-import { Button, IconButton, Modal, Paper, Typography } from "@mui/material";
-import React from "react";
+import {
+  Button,
+  IconButton,
+  Modal,
+  Paper,
+  TextField,
+  Typography,
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { useLocationQuery } from "../../Context/Locations";
+import { axiosSendGraphQlRequest } from "../../util/AxiosRequest";
 import { useSnackbar } from "notistack";
-  // eslint-disable-next-line
-import { useQRCode } from "react-qrcode";
-import { saveAs } from "file-saver";
 
 const style = {
   position: "absolute",
@@ -17,16 +23,50 @@ const style = {
   p: 4,
 };
 
-function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
+function EditVideos({ openPopUp, setOpenPopup, selected }) {
+  const [placeName, setLocation] = useState("");
+  const { LocationRefetch } = useLocationQuery();
+
+  // useEffect(() => {
+  //   if (navigator.geolocation) {
+  //     navigator.geolocation.getCurrentPosition(({ coords }) => {
+  //       setCoordinates([coords.latitude, coords.longitude]);
+  //     });
+  //   }
+  // }, []);
+
+  useEffect(() => {
+    if (selected?.placeName) setLocation(selected.placeName);
+  }, [selected]);
+
   const { enqueueSnackbar } = useSnackbar();
-    // eslint-disable-next-line
-  const dataUrl = useQRCode(selected?._id);
 
   const handleSubmit = async () => {
-    saveAs(dataUrl, `${selected?.placeName}.png`);
-    enqueueSnackbar("Location QR code Download successful", {
-      variant: "success",
-    });
+    try {
+      const {
+        data: { editLocation },
+        errors,
+      } = await axiosSendGraphQlRequest({
+        query: `mutation editLocation($_id: String, $placeName: String) {
+          editLocation( _id:$_id ,placeName: $placeName) {
+              _id
+              placeName
+          }
+        }`,
+        variables: { placeName, _id: selected?._id },
+      });
+      if (editLocation) {
+        enqueueSnackbar("Location Edited Succesful", { variant: "success" });
+        LocationRefetch();
+        setOpenPopup(false);
+      }
+
+      if (Array.isArray(errors) && errors[0]) {
+        enqueueSnackbar(errors[0].message, { variant: "error" });
+      }
+    } catch {
+      enqueueSnackbar("Location Edit Failed", { variant: "error" });
+    }
   };
 
   return (
@@ -58,7 +98,7 @@ function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
           }}
         >
           <Typography variant="h5">
-            <b>Generate Location QR Code</b>{" "}
+            <b>Edit Location</b>{" "}
           </Typography>
           <IconButton
             onClick={() => {
@@ -68,20 +108,14 @@ function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
             <Close />
           </IconButton>
         </div>
-        <div
-          style={{
-            display: "flex",
-            flexFlow: "column wrap",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Typography>
-            <b>Download {selected?.placeName} QR Code</b>{" "}
-          </Typography>
-          {selected._id && (
-            <img src={dataUrl} style={{ width: "20rem" }} alt="qr-codes" />
-          )}
+        <div style={{ display: "flex", flexFlow: "row wrap", gap: "1rem" }}>
+          <TextField
+            value={placeName}
+            variant="outlined"
+            onChange={(e) => setLocation(e.target.value)}
+            label="Location Name"
+            style={{ width: 400 }}
+          />
         </div>
         <div
           style={{
@@ -119,7 +153,7 @@ function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
             }}
             onClick={handleSubmit}
           >
-            Download
+            Submit
           </Button>
         </div>
       </Paper>
@@ -127,4 +161,4 @@ function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
   );
 }
 
-export default QRGenerateLocations;
+export default EditVideos;

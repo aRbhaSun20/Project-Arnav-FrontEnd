@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import { AddBox, Delete, Edit, Info, ReadMore } from "@mui/icons-material";
 import {
@@ -17,8 +17,9 @@ import {
 import { makeStyles } from "@mui/styles";
 import AddVideos from "./AddVideo";
 import { useVideoQuery } from "../../Context/Video";
-// import EditVideos from "./EditVideos";
-// import DeleteVideos from "./DeleteVideos";
+import EditVideos from "./EditVideo";
+import DeleteVideos from "./DeleteVideo";
+import { axiosSendRequest, AXIOS_ACTIONS } from "../../util/AxiosRequest";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -142,8 +143,7 @@ export default function VideoDetails() {
                     backgroundColor: i % 2 === 0 ? "#f1f1f1" : null,
                   }}
                 >
-                  <img src={row} />
-                  <TableCell>{row?.filename}</TableCell>
+                  <VideoImage filename={row.filename} />
                   <TableCell>{row.placeName}</TableCell>
                   <TableCell>{row.status}</TableCell>
                   <TableCell
@@ -188,7 +188,7 @@ export default function VideoDetails() {
         </TableContainer>
       </Paper>
       <AddVideos openPopUp={openAddVideo} setOpenPopup={setOpenAddVideo} />
-      {/* <EditVideos
+      <EditVideos
         openPopUp={openEditVideo}
         setOpenPopup={setOpenEditVideo}
         selected={selected}
@@ -197,7 +197,39 @@ export default function VideoDetails() {
         openPopUp={openDeleteVideo}
         setOpenPopup={setOpenDeleteVideo}
         selected={selected}
-      /> */}
+      />
     </React.Fragment>
   );
 }
+
+const VideoImage = ({ filename }) => {
+  // eslint-disable-next-line no-unused-vars
+  const [imageData, setImageData] = useState(null);
+  // const arrayBufferToBase64 = (buffer) => {
+  //   var binary = "";
+  //   var bytes = [].slice.call(new Uint8Array(buffer));
+  //   bytes.forEach((b) => (binary += String.fromCharCode(b)));
+  //   return window.btoa(binary);
+  // };
+
+  useEffect(() => {
+    console.log(filename);
+    if (filename) {
+      axiosSendRequest(
+        AXIOS_ACTIONS.GET,
+        null,
+        `https://arnav-backend.herokuapp.com/getVideo?videoId=b28298a1d39c6804632fcdb43f37eba6.png`
+      ).then((res) => {
+        // const data = `data:image/jpeg;base64, ${arrayBufferToBase64(res)}`;
+        // console.log(data)
+        // setImageData(URL.createObjectURL(res));
+      });
+    }
+  }, [filename]);
+
+  return (
+    <React.Fragment>
+      {imageData && <img src={imageData} alt="video-ele" />}
+    </React.Fragment>
+  );
+};
