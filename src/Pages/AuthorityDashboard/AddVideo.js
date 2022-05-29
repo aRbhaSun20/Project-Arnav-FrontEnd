@@ -113,7 +113,7 @@ function AddVideos({ openPopUp, setOpenPopup }) {
             <Close />
           </IconButton>
         </div>
-        {coordinates && <img src={coordinates} />}
+        {coordinates && <img src={coordinates} alt="coordinates" />}
         <div style={{ display: "flex", flexFlow: "row wrap", gap: "1rem" }}>
           <Input type="file" onChange={handleCHange} />
         </div>
