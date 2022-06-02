@@ -1,5 +1,4 @@
 import { Button, IconButton, InputAdornment, Modal, Paper, TextField, Typography } from "@mui/material";
-import { imageOverlay } from "leaflet";
 import { useSnackbar } from "notistack";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
