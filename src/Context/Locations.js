@@ -17,6 +17,7 @@ export const useParentQuery = () => {
             parentUser {
               name
             }
+            parentImageUrl
           }
       }`,
       });

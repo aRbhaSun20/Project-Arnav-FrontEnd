@@ -22,12 +22,11 @@ import {
   Typography,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { useLocationQuery } from "../../Context/Locations";
+import { useParentQuery } from "../../Context/Locations";
 import AddLocations from "./AddLocations";
 import EditLocations from "./EditLocations";
 import DeleteLocations from "./DeleteLocations"; // eslint-disable-next-line
 import QRGenerateLocations from "./QRGenerateLocations";
-
 const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
@@ -62,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ParentDetails() {
   const classes = useStyles();
-  const { data } = useLocationQuery();
+  const { data } = useParentQuery();
   const [openAddLocation, setOpenAddLocation] = useState(false);
   const [selected, setSelected] = useState({ _id: "" });
   const [openEditLocation, setOpenEditLocation] = useState(false);
@@ -123,7 +122,7 @@ export default function ParentDetails() {
               <TableRow
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "10rem repeat(5,1fr)",
+                  gridTemplateColumns: "10rem repeat(3,1fr)",
                   width: "100%",
                 }}
               >
@@ -133,18 +132,19 @@ export default function ParentDetails() {
                 >
                   Image
                 </TableCell>
-                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                <TableCell
+                  align="center"
+                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                >
                   User created
-                </TableCell> <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Source
                 </TableCell>
-                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Destination
-                </TableCell>
-                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                <TableCell
+                  align="center"
+                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                >
                   Request Status
                 </TableCell>
-                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                <TableCell align="center"style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
                   Actions
                 </TableCell>
               </TableRow>
@@ -152,26 +152,24 @@ export default function ParentDetails() {
             <TableBody>
               {data?.parents?.map((row, i) => (
                 <TableRow
-                  key={row.name}
+                  key={i}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "10rem repeat(5,1fr)",
+                    gridTemplateColumns: "10rem repeat(3,1fr)",
                     width: "100%",
                     backgroundColor: i % 2 === 0 ? "#f1f1f1" : null,
                   }}
                 >
                   <TableCell align="center">
                     <img
-                      src={data.imageUrl}
+                      src={row.parentImageUrl}
                       style={{ width: "3rem", height: "3rem" }}
                       alt="location-img"
                     />
                   </TableCell>
-                  <TableCell>{row?.parentUser?.name}</TableCell>
-                  <TableCell>{row.placeName}</TableCell>
-                  <TableCell>{row.placeName}</TableCell>
-                  <TableCell>{row.status}</TableCell>
-                  <TableCell
+                  <TableCell align="center">{row?.parentUser?.name}</TableCell>
+                  <TableCell align="center">{row.status}</TableCell>
+                  <TableCell align="center"
                     style={{
                       display: "grid",
                       gridTemplateColumns: "repeat(4,1fr)",
