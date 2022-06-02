@@ -20,7 +20,7 @@ const style = {
 function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
   const { enqueueSnackbar } = useSnackbar();
     // eslint-disable-next-line
-  const dataUrl = useQRCode(selected?._id);
+  const dataUrl = useQRCode(`${selected?._id}`);
 
   const handleSubmit = async () => {
     saveAs(dataUrl, `${selected?.placeName}.png`);

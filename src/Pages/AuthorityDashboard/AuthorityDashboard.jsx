@@ -2,6 +2,7 @@ import * as React from "react";
 import NavbarAfter from "../../Components/Navbar/NavbarAfter";
 import LeftBar from "./LeftBar";
 import LocationDetails from "./LocationDetails";
+import NodeDetails from "./NodeDetails";
 import VideoDetails from "./VideoDetails";
 
 export default function AuthorityDashboard() {
@@ -20,6 +21,7 @@ export default function AuthorityDashboard() {
         >
           <NavbarAfter />
           <LocationDetails />
+          <NodeDetails/>
           <VideoDetails />
         </div>
       </div>

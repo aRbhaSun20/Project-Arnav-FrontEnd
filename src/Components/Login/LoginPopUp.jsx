@@ -1,4 +1,5 @@
-import { Button, Modal, Paper, TextField, Typography } from "@mui/material";
+import { Button, IconButton, InputAdornment, Modal, Paper, TextField, Typography } from "@mui/material";
+import { imageOverlay } from "leaflet";
 import { useSnackbar } from "notistack";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,6 +8,7 @@ import PeopleLogo from "../../assets/people-logo.png";
 import { NAV_ACTIONS } from "../../Context/NavigationReducers";
 import { USER_ACTIONS } from "../../Context/UserReducers";
 import { axiosSendGraphQlRequest } from "../../util/AxiosRequest";
+import {Visibility,VisibilityOff} from "@mui/icons-material"
 
 const style = {
   position: "absolute",
@@ -32,6 +34,8 @@ export default function LoginPopUp() {
     const { name, value } = e.target;
     setLogin((state) => ({ ...state, [name]: value }));
   };
+
+  const [Show, setShow] = useState(false)
 
   const handleSubmit = async () => {
     try {
@@ -140,7 +144,16 @@ export default function LoginPopUp() {
             <TextField
               variant="outlined"
               label="Password"
-              type="password"
+              InputProps={{
+                endAdornment: <InputAdornment position="start">
+                  <IconButton onClick={()=>{
+                    setShow(state => !state)
+                  }}>
+                    {Show?<Visibility/>:<VisibilityOff/>}
+                  </IconButton>
+                </InputAdornment>,
+              }}
+              type={Show?"text":"password"}
               name="password"
               onChange={handleChange}
               value={loginData.password}
