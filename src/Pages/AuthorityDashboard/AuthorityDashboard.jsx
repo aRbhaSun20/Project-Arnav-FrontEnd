@@ -4,6 +4,7 @@ import LeftBar from "./LeftBar";
 import LocationDetails from "./LocationDetails";
 import NodeDetails from "./NodeDetails";
 import VideoDetails from "./VideoDetails";
+import ParentDetails from "./ParentDetails";
 
 export default function AuthorityDashboard() {
   return (
@@ -20,6 +21,7 @@ export default function AuthorityDashboard() {
           }}
         >
           <NavbarAfter />
+          <ParentDetails />
           <LocationDetails />
           <NodeDetails/>
           <VideoDetails />
