@@ -59,16 +59,22 @@ export const useLocationQuery = () => {
         data: { locations },
         errors,
       } = await axiosSendGraphQlRequest({
-        query: `query parentData {
-          parents {
+        query: `{
+          locations {
             _id
             userId
-            parentName
-            parentUser {
-              name
+            videoUrl
+            sourceId
+            parent {
+              parentName
+              parentUser {
+                name
+                _id
+              }
             }
+            parentId
           }
-      }`,
+        }`,
       });
       return { locations, errors };
     }

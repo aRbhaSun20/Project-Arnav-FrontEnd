@@ -139,7 +139,7 @@ export default function LocationDetails() {
                   Source
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Destination
+                  Parent Name
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
                   Request Status
@@ -150,7 +150,7 @@ export default function LocationDetails() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data?.parents?.map((row, i) => (
+              {data?.locations?.map((row, i) => (
                 <TableRow
                   key={row.name}
                   style={{
@@ -167,9 +167,9 @@ export default function LocationDetails() {
                       alt="location-img"
                     />
                   </TableCell>
-                  <TableCell>{row?.parentUser?.name}</TableCell>
+                  <TableCell>{row?.user?.name}</TableCell>
                   <TableCell>{row.placeName}</TableCell>
-                  <TableCell>{row.placeName}</TableCell>
+                  <TableCell>{row?.parent?.parentName}</TableCell>
                   <TableCell>{row.status}</TableCell>
                   <TableCell
                     style={{
