@@ -34,16 +34,20 @@ export const useNodeQuery = () => {
         data: { nodes },
         errors,
       } = await axiosSendGraphQlRequest({
-        query: `query parentData {
-          parents {
+        query: `query nodesData{
+          nodes{
             _id
-            userId
-            parentName
-            parentUser {
+            imageUrl
+            user{
+              _id
               name
             }
+            placeName
+            coordinates
+            userId
+            
           }
-      }`,
+        }`,
       });
       return { nodes, errors };
     }

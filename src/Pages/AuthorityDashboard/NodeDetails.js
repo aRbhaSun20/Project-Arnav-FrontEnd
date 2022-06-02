@@ -22,7 +22,7 @@ import {
   Typography,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { useLocationQuery } from "../../Context/Locations";
+import { useLocationQuery, useNodeQuery } from "../../Context/Locations";
 import AddLocations from "./AddLocations";
 import EditLocations from "./EditLocations";
 import DeleteLocations from "./DeleteLocations"; // eslint-disable-next-line
@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function NodeDetails() {
   const classes = useStyles();
-  const { data } = useLocationQuery();
+  const { data } = useNodeQuery();
   const [openAddLocation, setOpenAddLocation] = useState(false);
   const [selected, setSelected] = useState({ _id: "" });
   const [openEditLocation, setOpenEditLocation] = useState(false);
@@ -145,7 +145,7 @@ export default function NodeDetails() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data?.parents?.map((row, i) => (
+              {data?.nodes?.map((row, i) => (
                 <TableRow
                   key={row.name}
                   style={{
@@ -162,9 +162,9 @@ export default function NodeDetails() {
                       alt="location-img"
                     />
                   </TableCell>
-                  <TableCell>{row?.user?.name}</TableCell>
+                  <TableCell align="center">{row?.user?.name}</TableCell>
                   
-                  <TableCell>{row.status}</TableCell>
+                  <TableCell align="center">{row.status}</TableCell>
                   <TableCell
                   align="center"
                     style={{
