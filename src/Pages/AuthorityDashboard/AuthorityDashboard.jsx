@@ -3,7 +3,7 @@ import NavbarAfter from "../../Components/Navbar/NavbarAfter";
 import LeftBar from "./LeftBar";
 import LocationDetails from "./LocationDetails";
 import NodeDetails from "./NodeDetails";
-import VideoDetails from "./VideoDetails";
+// import VideoDetails from "./VideoDetails";
 import ParentDetails from "./ParentDetails";
 
 export default function AuthorityDashboard() {
@@ -24,7 +24,7 @@ export default function AuthorityDashboard() {
           <ParentDetails />
           <LocationDetails />
           <NodeDetails/>
-          <VideoDetails />
+          {/* <VideoDetails /> */}
         </div>
       </div>
     </React.Fragment>

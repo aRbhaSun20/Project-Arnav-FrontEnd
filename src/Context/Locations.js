@@ -28,10 +28,10 @@ export const useParentQuery = () => {
 
 export const useNodeQuery = () => {
   const { data, refetch: NodeRefetch } = useQuery(
-    "parent datas",
+    "node datas",
     async () => {
       const {
-        data: { parents },
+        data: { nodes },
         errors,
       } = await axiosSendGraphQlRequest({
         query: `query parentData {
@@ -45,7 +45,7 @@ export const useNodeQuery = () => {
           }
       }`,
       });
-      return { parents, errors };
+      return { nodes, errors };
     }
   );
   return { data, NodeRefetch };
@@ -53,10 +53,10 @@ export const useNodeQuery = () => {
 
 export const useLocationQuery = () => {
   const { data, refetch: LocationRefetch } = useQuery(
-    "parent datas",
+    "location datas",
     async () => {
       const {
-        data: { parents },
+        data: { locations },
         errors,
       } = await axiosSendGraphQlRequest({
         query: `query parentData {
@@ -70,7 +70,7 @@ export const useLocationQuery = () => {
           }
       }`,
       });
-      return { parents, errors };
+      return { locations, errors };
     }
   );
   return { data, LocationRefetch };

@@ -90,7 +90,7 @@ export default function LocationDetails() {
         >
           <Toolbar>
             <div className={classes.title}>
-              <Typography variant="h6">Parent Details</Typography>
+              <Typography variant="h6">Location Details</Typography>
               <IconButton>
                 <Info />
               </IconButton>
