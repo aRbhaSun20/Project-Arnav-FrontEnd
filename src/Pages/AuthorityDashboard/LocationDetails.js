@@ -152,7 +152,7 @@ export default function LocationDetails() {
             <TableBody>
               {data?.locations?.map((row, i) => (
                 <TableRow
-                  key={row.name}
+                  key={i}
                   style={{
                     display: "grid",
                     gridTemplateColumns: "10rem repeat(5,1fr)",
@@ -162,15 +162,15 @@ export default function LocationDetails() {
                 >
                   <TableCell align="center">
                     <img
-                      src={data.imageUrl}
+                      src={data.videoUrl}
                       style={{ width: "3rem", height: "3rem" }}
                       alt="location-img"
                     />
                   </TableCell>
                   <TableCell>{row?.user?.name}</TableCell>
-                  <TableCell>{row.placeName}</TableCell>
+                  <TableCell>{row?.source?.placeName}</TableCell>
                   <TableCell>{row?.parent?.parentName}</TableCell>
-                  <TableCell>{row.status}</TableCell>
+                  <TableCell>{row?.status}</TableCell>
                   <TableCell
                     style={{
                       display: "grid",

@@ -17,7 +17,6 @@ export const useParentQuery = () => {
             parentUser {
               name
             }
-            parentImageUrl
           }
       }`,
       });
@@ -63,9 +62,13 @@ export const useLocationQuery = () => {
         query: `{
           locations {
             _id
-            userId
+            user{
+              name
+            }
             videoUrl
-            sourceId
+            source{
+              placeName
+            }
             parent {
               parentName
               parentUser {
