@@ -3,6 +3,7 @@ import NavbarAfter from "../../Components/Navbar/NavbarAfter";
 import LeftBar from "./LeftBar";
 import LocationDetails from "./LocationDetails";
 import VideoDetails from "./VideoDetails";
+import ParentDetails from "./ParentDetails";
 
 export default function AuthorityDashboard() {
   return (
@@ -19,6 +20,7 @@ export default function AuthorityDashboard() {
           }}
         >
           <NavbarAfter />
+          <ParentDetails />
           <LocationDetails />
           <VideoDetails />
         </div>

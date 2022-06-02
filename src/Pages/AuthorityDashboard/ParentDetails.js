@@ -60,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function LocationDetails() {
+export default function ParentDetails() {
   const classes = useStyles();
   const { data } = useLocationQuery();
   const [openAddLocation, setOpenAddLocation] = useState(false);
