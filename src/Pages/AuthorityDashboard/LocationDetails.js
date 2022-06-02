@@ -90,7 +90,7 @@ export default function LocationDetails() {
         >
           <Toolbar>
             <div className={classes.title}>
-              <Typography variant="h6">Location Details</Typography>
+              <Typography variant="h6">Parent Details</Typography>
               <IconButton>
                 <Info />
               </IconButton>
@@ -123,15 +123,23 @@ export default function LocationDetails() {
               <TableRow
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(4,1fr)",
+                  gridTemplateColumns: "10rem repeat(5,1fr)",
                   width: "100%",
                 }}
               >
-                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Location
+                <TableCell
+                  align="center"
+                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                >
+                  Image
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Place Name
+                  User created
+                </TableCell> <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                  Source
+                </TableCell>
+                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                  Destination
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
                   Request Status
@@ -142,17 +150,25 @@ export default function LocationDetails() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data?.locations?.map((row, i) => (
+              {data?.parents?.map((row, i) => (
                 <TableRow
                   key={row.name}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(4,1fr)",
+                    gridTemplateColumns: "10rem repeat(5,1fr)",
                     width: "100%",
                     backgroundColor: i % 2 === 0 ? "#f1f1f1" : null,
                   }}
                 >
+                  <TableCell align="center">
+                    <img
+                      src={data.imageUrl}
+                      style={{ width: "3rem", height: "3rem" }}
+                      alt="location-img"
+                    />
+                  </TableCell>
                   <TableCell>{row?.user?.name}</TableCell>
+                  <TableCell>{row.placeName}</TableCell>
                   <TableCell>{row.placeName}</TableCell>
                   <TableCell>{row.status}</TableCell>
                   <TableCell

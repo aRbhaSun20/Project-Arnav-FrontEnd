@@ -6,21 +6,21 @@ export const useLocationQuery = () => {
     "location datas",
     async () => {
       const {
-        data: { locations },
+        data: { parents },
         errors,
       } = await axiosSendGraphQlRequest({
-        query: `query locationData {
-          locations{
+        query: `query parentData {
+          parents {
             _id
-            placeName
-            coordinates
-            user {
+            userId
+            parentName
+            parentUser {
               name
             }
           }
       }`,
       });
-      return { locations, errors };
+      return { parents, errors };
     }
   );
   return { data, LocationRefetch };

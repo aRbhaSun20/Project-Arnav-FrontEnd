@@ -6,12 +6,18 @@ import {
   Paper,
   TextField,
   Typography,
+  Input,
+  Box,
+  CircularProgress,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useLocationQuery } from "../../Context/Locations";
 import { axiosSendGraphQlRequest } from "../../util/AxiosRequest";
 import { useSnackbar } from "notistack";
 import { useSelector } from "react-redux";
+import { storage } from "../../util/firebaseconfig";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { green } from "@mui/material/colors";
 
 const style = {
   position: "absolute",
@@ -26,6 +32,8 @@ const style = {
 
 function AddLocations({ openPopUp, setOpenPopup }) {
   const [placeName, setLocation] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [files, setFiles] = useState(null);
   const [coordinates, setCoordinates] = useState([]);
   const { LocationRefetch } = useLocationQuery();
   const user = useSelector((state) => state.user);
@@ -40,7 +48,37 @@ function AddLocations({ openPopUp, setOpenPopup }) {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
+    try {
+      if (!loading) setLoading(true);
+      const imageRef = ref(storage, files.name);
+      const uploadTask = uploadBytesResumable(imageRef, files);
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress = snapshot.bytesTransferred / snapshot.totalBytes;
+          if (progress === 1) {
+            setLoading(false);
+            enqueueSnackbar("File uploaded successfully ", {
+              variant: "success",
+            });
+          }
+        },
+        (error) => {
+          console.log(error.message);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+            createLocation(url);
+          });
+        }
+      );
+    } catch {
+      enqueueSnackbar("Location Image Creation Failed", { variant: "error" });
+    }
+  };
+
+  const createLocation = async (dataUrl) => {
     try {
       const {
         data: { addLocation },
@@ -59,13 +97,16 @@ function AddLocations({ openPopUp, setOpenPopup }) {
         LocationRefetch();
         setOpenPopup(false);
       }
-
       if (Array.isArray(errors) && errors[0]) {
         enqueueSnackbar(errors[0].message, { variant: "error" });
       }
     } catch {
       enqueueSnackbar("Location Creation Failed", { variant: "error" });
     }
+  };
+
+  const handleChange = (e) => {
+    setFiles(e.target.files[0]);
   };
 
   return (
@@ -97,7 +138,7 @@ function AddLocations({ openPopUp, setOpenPopup }) {
           }}
         >
           <Typography variant="h5">
-            <b>Add Location</b>{" "}
+            <b>Add Locations</b>{" "}
           </Typography>
           <IconButton
             onClick={() => {
@@ -115,6 +156,7 @@ function AddLocations({ openPopUp, setOpenPopup }) {
             label="Location Name"
             style={{ width: 400 }}
           />
+          <Input type="file" onChange={handleChange} />
         </div>
         <div
           style={{
@@ -140,20 +182,36 @@ function AddLocations({ openPopUp, setOpenPopup }) {
           >
             Cancel
           </Button>
-          <Button
-            variant="outlined"
-            style={{
-              backgroundColor: "blue",
-              height: 54,
-              width: "17rem",
-              borderRadius: 8,
-              color: "white",
-              fontWeight: "bold",
-            }}
-            onClick={handleSubmit}
-          >
-            Submit
-          </Button>
+          <Box sx={{ m: 1, position: "relative" }}>
+            <Button
+              variant="contained"
+              disabled={loading}
+              style={{
+                backgroundColor: loading ? "lightgrey" : "blue",
+                height: 54,
+                width: "17rem",
+                borderRadius: 8,
+                color: "white",
+                fontWeight: "bold",
+              }}
+              onClick={handleSubmit}
+            >
+              Accept terms
+            </Button>
+            {loading && (
+              <CircularProgress
+                size={36}
+                sx={{
+                  color: green[500],
+                  position: "absolute",
+                  top: "40%",
+                  left: "50%",
+                  marginTop: "-12px",
+                  marginLeft: "-12px",
+                }}
+              />
+            )}
+          </Box>
         </div>
       </Paper>
     </Modal>

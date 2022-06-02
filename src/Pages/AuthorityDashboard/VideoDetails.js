@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import { AddBox, Delete, Edit, Info, ReadMore } from "@mui/icons-material";
 import {
@@ -19,7 +19,6 @@ import AddVideos from "./AddVideo";
 import { useVideoQuery } from "../../Context/Video";
 import EditVideos from "./EditVideo";
 import DeleteVideos from "./DeleteVideo";
-import { axiosSendRequest, AXIOS_ACTIONS } from "../../util/AxiosRequest";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -114,7 +113,7 @@ export default function VideoDetails() {
               <TableRow
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(4,1fr)",
+                  gridTemplateColumns: "10rem repeat(5,1fr)",
                   width: "100%",
                 }}
               >
@@ -122,7 +121,13 @@ export default function VideoDetails() {
                   Video
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Place Name
+                  User created
+                </TableCell>
+                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                  Source
+                </TableCell>{" "}
+                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                  Destination
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
                   Request Status
@@ -138,12 +143,14 @@ export default function VideoDetails() {
                   key={row.name}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(4,1fr)",
+                    gridTemplateColumns: "10rem repeat(5,1fr)",
                     width: "100%",
                     backgroundColor: i % 2 === 0 ? "#f1f1f1" : null,
                   }}
                 >
-                  <VideoImage filename={row.filename} />
+                  <img src={row.videoUrl} alt="video-ele" />
+                  <TableCell>{row.userName}</TableCell>
+                  <TableCell>{row.placeName}</TableCell>
                   <TableCell>{row.placeName}</TableCell>
                   <TableCell>{row.status}</TableCell>
                   <TableCell
@@ -202,34 +209,15 @@ export default function VideoDetails() {
   );
 }
 
-const VideoImage = ({ filename }) => {
-  // eslint-disable-next-line no-unused-vars
-  const [imageData, setImageData] = useState(null);
-  // const arrayBufferToBase64 = (buffer) => {
-  //   var binary = "";
-  //   var bytes = [].slice.call(new Uint8Array(buffer));
-  //   bytes.forEach((b) => (binary += String.fromCharCode(b)));
-  //   return window.btoa(binary);
-  // };
+// const VideoImage = ({ filename }) => {
+//   // eslint-disable-next-line no-unused-vars
+//   const [imageData, setImageData] = useState(null);
 
-  useEffect(() => {
-    console.log(filename);
-    if (filename) {
-      axiosSendRequest(
-        AXIOS_ACTIONS.GET,
-        null,
-        `https://arnav-backend.herokuapp.com/getVideo?videoId=b28298a1d39c6804632fcdb43f37eba6.png`
-      ).then((res) => {
-        // const data = `data:image/jpeg;base64, ${arrayBufferToBase64(res)}`;
-        // console.log(data)
-        // setImageData(URL.createObjectURL(res));
-      });
-    }
-  }, [filename]);
+//   return (
+//     <React.Fragment>
+//       {imageData && (
 
-  return (
-    <React.Fragment>
-      {imageData && <img src={imageData} alt="video-ele" />}
-    </React.Fragment>
-  );
-};
+//       )}
+//     </React.Fragment>
+//   );
+// };
