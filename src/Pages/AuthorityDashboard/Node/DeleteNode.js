@@ -1,15 +1,8 @@
 import { Close } from "@mui/icons-material";
-import {
-  Button,
-  IconButton,
-  Modal,
-  Paper,
-  TextField,
-  Typography,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useLocationQuery } from "../../Context/Locations";
-import { axiosSendGraphQlRequest } from "../../util/AxiosRequest";
+import { Button, IconButton, Modal, Paper, Typography } from "@mui/material";
+import React from "react";
+import { useLocationQuery } from "../../../Context/Locations";
+import { axiosSendGraphQlRequest } from "../../../util/AxiosRequest";
 import { useSnackbar } from "notistack";
 
 const style = {
@@ -23,40 +16,27 @@ const style = {
   p: 4,
 };
 
-function EditLocations({ openPopUp, setOpenPopup, selected }) {
-  const [placeName, setLocation] = useState("");
+function DeleteNode({ openPopUp, setOpenPopup, selected }) {
   const { LocationRefetch } = useLocationQuery();
-
-  // useEffect(() => {
-  //   if (navigator.geolocation) {
-  //     navigator.geolocation.getCurrentPosition(({ coords }) => {
-  //       setCoordinates([coords.latitude, coords.longitude]);
-  //     });
-  //   }
-  // }, []);
-
-  useEffect(() => {
-    if (selected?.placeName) setLocation(selected.placeName);
-  }, [selected]);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const handleSubmit = async () => {
     try {
       const {
-        data: { editLocation },
+        data: { deleteLocation },
         errors,
       } = await axiosSendGraphQlRequest({
-        query: `mutation editLocation($_id: String, $placeName: String) {
-          editLocation( _id:$_id ,placeName: $placeName) {
+        query: `mutation deleteLocation($_id: String!) {
+          deleteLocation( _id:$_id ) {
               _id
               placeName
           }
         }`,
-        variables: { placeName, _id: selected?._id },
+        variables: { _id: selected?._id },
       });
-      if (editLocation) {
-        enqueueSnackbar("Location Edited Succesful", { variant: "success" });
+      if (deleteLocation) {
+        enqueueSnackbar("Location Delete Succesful", { variant: "success" });
         LocationRefetch();
         setOpenPopup(false);
       }
@@ -65,7 +45,7 @@ function EditLocations({ openPopUp, setOpenPopup, selected }) {
         enqueueSnackbar(errors[0].message, { variant: "error" });
       }
     } catch {
-      enqueueSnackbar("Location Edit Failed", { variant: "error" });
+      enqueueSnackbar("Location delete Failed", { variant: "error" });
     }
   };
 
@@ -98,7 +78,7 @@ function EditLocations({ openPopUp, setOpenPopup, selected }) {
           }}
         >
           <Typography variant="h5">
-            <b>Edit Location</b>{" "}
+            <b>Delete Location</b>{" "}
           </Typography>
           <IconButton
             onClick={() => {
@@ -109,13 +89,9 @@ function EditLocations({ openPopUp, setOpenPopup, selected }) {
           </IconButton>
         </div>
         <div style={{ display: "flex", flexFlow: "row wrap", gap: "1rem" }}>
-          <TextField
-            value={placeName}
-            variant="outlined"
-            onChange={(e) => setLocation(e.target.value)}
-            label="Location Name"
-            style={{ width: 400 }}
-          />
+          <Typography>
+            <b>Are you sure you want to delete {selected?.placeName}</b>
+          </Typography>
         </div>
         <div
           style={{
@@ -161,4 +137,4 @@ function EditLocations({ openPopUp, setOpenPopup, selected }) {
   );
 }
 
-export default EditLocations;
+export default DeleteNode;

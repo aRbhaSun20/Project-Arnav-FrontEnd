@@ -22,11 +22,11 @@ import {
   Typography,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { useLocationQuery } from "../../Context/Locations";
-import AddLocations from "./AddLocations";
-import EditLocations from "./EditLocations";
-import DeleteLocations from "./DeleteLocations"; // eslint-disable-next-line
-import QRGenerateLocations from "./QRGenerateLocations";
+import { useNodeQuery } from "../../../Context/Locations";
+import AddNode from "./AddNode";
+import EditNode from "./EditNode";
+import DeleteNode from "./DeleteNode"; // eslint-disable-next-line
+import QRGenerateLocations from "../QRGenerateLocations";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -60,9 +60,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function LocationDetails() {
+export default function NodeDetails() {
   const classes = useStyles();
-  const { data } = useLocationQuery();
+  const { data } = useNodeQuery();
   const [openAddLocation, setOpenAddLocation] = useState(false);
   const [selected, setSelected] = useState({ _id: "" });
   const [openEditLocation, setOpenEditLocation] = useState(false);
@@ -90,7 +90,7 @@ export default function LocationDetails() {
         >
           <Toolbar>
             <div className={classes.title}>
-              <Typography variant="h6">Location Details</Typography>
+              <Typography variant="h6">Node Details</Typography>
               <IconButton>
                 <Info />
               </IconButton>
@@ -123,7 +123,7 @@ export default function LocationDetails() {
               <TableRow
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "10rem repeat(5,1fr)",
+                  gridTemplateColumns: "10rem repeat(3,1fr)",
                   width: "100%",
                 }}
               >
@@ -133,49 +133,54 @@ export default function LocationDetails() {
                 >
                   Image
                 </TableCell>
-                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                <TableCell
+                  align="center"
+                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                >
                   User created
-                </TableCell> <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Source
                 </TableCell>
-                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                  Parent Name
-                </TableCell>
-                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+
+                <TableCell
+                  align="center"
+                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                >
                   Request Status
                 </TableCell>
-                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                <TableCell
+                  align="center"
+                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                >
                   Actions
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {data?.locations?.map((row, i) => (
+              {data?.nodes?.map((row, i) => (
                 <TableRow
-                  key={i}
+                  key={row.name}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "10rem repeat(5,1fr)",
+                    gridTemplateColumns: "10rem repeat(3,1fr)",
                     width: "100%",
                     backgroundColor: i % 2 === 0 ? "#f1f1f1" : null,
                   }}
                 >
                   <TableCell align="center">
                     <img
-                      src={data.videoUrl}
+                      src={data.imageUrl}
                       style={{ width: "3rem", height: "3rem" }}
                       alt="location-img"
                     />
                   </TableCell>
-                  <TableCell>{row?.user?.name}</TableCell>
-                  <TableCell>{row?.source?.placeName}</TableCell>
-                  <TableCell>{row?.parent?.parentName}</TableCell>
-                  <TableCell>{row?.status}</TableCell>
+                  <TableCell align="center">{row?.user?.name}</TableCell>
+
+                  <TableCell align="center">{row.status}</TableCell>
                   <TableCell
+                    align="center"
                     style={{
                       display: "grid",
                       gridTemplateColumns: "repeat(4,1fr)",
-                      width: "75%",
+                      width: "90%",
                     }}
                   >
                     <IconButton
@@ -223,16 +228,16 @@ export default function LocationDetails() {
           </Table>
         </TableContainer>
       </Paper>
-      <AddLocations
+      <AddNode
         openPopUp={openAddLocation}
         setOpenPopup={setOpenAddLocation}
       />
-      <EditLocations
+      <EditNode
         openPopUp={openEditLocation}
         setOpenPopup={setOpenEditLocation}
         selected={selected}
       />
-      <DeleteLocations
+      <DeleteNode
         openPopUp={openDeleteLocation}
         setOpenPopup={setOpenDeleteLocation}
         selected={selected}

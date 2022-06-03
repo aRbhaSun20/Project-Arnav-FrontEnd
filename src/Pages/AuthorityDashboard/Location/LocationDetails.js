@@ -22,11 +22,12 @@ import {
   Typography,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { useParentQuery } from "../../Context/Locations";
+import { useLocationQuery } from "../../../Context/Locations";
 import AddLocations from "./AddLocations";
 import EditLocations from "./EditLocations";
 import DeleteLocations from "./DeleteLocations"; // eslint-disable-next-line
-import QRGenerateLocations from "./QRGenerateLocations";
+import QRGenerateLocations from "../QRGenerateLocations";
+
 const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
@@ -59,9 +60,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ParentDetails() {
+export default function LocationDetails() {
   const classes = useStyles();
-  const { data } = useParentQuery();
+  const { data } = useLocationQuery();
   const [openAddLocation, setOpenAddLocation] = useState(false);
   const [selected, setSelected] = useState({ _id: "" });
   const [openEditLocation, setOpenEditLocation] = useState(false);
@@ -89,7 +90,7 @@ export default function ParentDetails() {
         >
           <Toolbar>
             <div className={classes.title}>
-              <Typography variant="h6">Parent Details</Typography>
+              <Typography variant="h6">Location Details</Typography>
               <IconButton>
                 <Info />
               </IconButton>
@@ -122,7 +123,7 @@ export default function ParentDetails() {
               <TableRow
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "10rem repeat(3,1fr)",
+                  gridTemplateColumns: "10rem repeat(5,1fr)",
                   width: "100%",
                 }}
               >
@@ -132,44 +133,45 @@ export default function ParentDetails() {
                 >
                   Image
                 </TableCell>
-                <TableCell
-                  align="center"
-                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
-                >
+                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
                   User created
+                </TableCell> <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                  Source
                 </TableCell>
-                <TableCell
-                  align="center"
-                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
-                >
+                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                  Parent Name
+                </TableCell>
+                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
                   Request Status
                 </TableCell>
-                <TableCell align="center"style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
                   Actions
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {data?.parents?.map((row, i) => (
+              {data?.locations?.map((row, i) => (
                 <TableRow
                   key={i}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "10rem repeat(3,1fr)",
+                    gridTemplateColumns: "10rem repeat(5,1fr)",
                     width: "100%",
                     backgroundColor: i % 2 === 0 ? "#f1f1f1" : null,
                   }}
                 >
                   <TableCell align="center">
                     <img
-                      src={row.parentImageUrl}
+                      src={data.videoUrl}
                       style={{ width: "3rem", height: "3rem" }}
                       alt="location-img"
                     />
                   </TableCell>
-                  <TableCell align="center">{row?.parentUser?.name}</TableCell>
-                  <TableCell align="center">{row.status}</TableCell>
-                  <TableCell align="center"
+                  <TableCell>{row?.user?.name}</TableCell>
+                  <TableCell>{row?.source?.placeName}</TableCell>
+                  <TableCell>{row?.parent?.parentName}</TableCell>
+                  <TableCell>{row?.status}</TableCell>
+                  <TableCell
                     style={{
                       display: "grid",
                       gridTemplateColumns: "repeat(4,1fr)",

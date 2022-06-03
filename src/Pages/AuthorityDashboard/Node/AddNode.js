@@ -11,11 +11,11 @@ import {
   CircularProgress,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { useLocationQuery } from "../../Context/Locations";
-import { axiosSendGraphQlRequest } from "../../util/AxiosRequest";
+import { useLocationQuery } from "../../../Context/Locations";
+import { axiosSendGraphQlRequest } from "../../../util/AxiosRequest";
 import { useSnackbar } from "notistack";
 import { useSelector } from "react-redux";
-import { storage } from "../../util/firebaseconfig";
+import { storage } from "../../../util/firebaseconfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { green } from "@mui/material/colors";
 
@@ -30,7 +30,7 @@ const style = {
   p: 4,
 };
 
-function AddLocations({ openPopUp, setOpenPopup }) {
+function AddNode({ openPopUp, setOpenPopup }) {
   const [placeName, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState(null);
@@ -218,4 +218,4 @@ function AddLocations({ openPopUp, setOpenPopup }) {
   );
 }
 
-export default AddLocations;
+export default AddNode;

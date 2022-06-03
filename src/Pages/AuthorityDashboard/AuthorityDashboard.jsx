@@ -1,10 +1,10 @@
 import * as React from "react";
 import NavbarAfter from "../../Components/Navbar/NavbarAfter";
 import LeftBar from "./LeftBar";
-import LocationDetails from "./LocationDetails";
-import NodeDetails from "./NodeDetails";
+import LocationDetails from "./Location/LocationDetails";
+import NodeDetails from "./Node/NodeDetails";
 // import VideoDetails from "./VideoDetails";
-import ParentDetails from "./ParentDetails";
+import ParentDetails from "./Parent/ParentDetails";
 
 export default function AuthorityDashboard() {
   return (

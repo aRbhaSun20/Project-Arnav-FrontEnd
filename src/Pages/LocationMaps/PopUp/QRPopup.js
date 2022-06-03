@@ -1,4 +1,12 @@
-import { Button, Modal, Paper, Typography } from "@mui/material";
+import {
+  Button,
+  Modal,
+  Paper,
+  Typography,
+  TextField,
+  MenuItem,
+  ListItemText,
+} from "@mui/material";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 import QrReader from "react-qr-scanner";
@@ -22,6 +30,7 @@ const style = {
 function QRPopup({ openPopUp, setOpenPopup }) {
   // eslint-disable-next-line no-unused-vars
   const [delay, setDelay] = useState(100);
+  const [options, setOptions] = useState("rear");
   const [result, setResult] = useState("");
   const { SelectedLocation, SelectedLocationRefetch } =
     useParticularLocationQuery(result);
@@ -104,13 +113,28 @@ function QRPopup({ openPopUp, setOpenPopup }) {
               </Button>
             </div>
           ) : (
-            <QrReader
-              delay={delay}
-              style={previewStyle}
-              onError={handleError}
-              onScan={handleScan}
-              facingMode="rear"
-            />
+            <React.Fragment>
+              <QrReader
+                delay={delay}
+                style={previewStyle}
+                onError={handleError}
+                onScan={handleScan}
+                facingMode={options}
+              />
+              <TextField
+                select
+                onChange={(e) => {
+                  setOptions(e.target.value);
+                }}
+              >
+                <MenuItem value="rear">
+                  <ListItemText primary={"rear"} />
+                </MenuItem>
+                <MenuItem value="front">
+                  <ListItemText primary={"front"} />
+                </MenuItem>
+              </TextField>
+            </React.Fragment>
           )}
         </Paper>
       </Modal>

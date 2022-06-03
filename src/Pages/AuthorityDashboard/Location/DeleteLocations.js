@@ -1,8 +1,8 @@
 import { Close } from "@mui/icons-material";
 import { Button, IconButton, Modal, Paper, Typography } from "@mui/material";
 import React from "react";
-import { useLocationQuery } from "../../Context/Locations";
-import { axiosSendGraphQlRequest } from "../../util/AxiosRequest";
+import { useLocationQuery } from "../../../Context/Locations";
+import { axiosSendGraphQlRequest } from "../../../util/AxiosRequest";
 import { useSnackbar } from "notistack";
 
 const style = {

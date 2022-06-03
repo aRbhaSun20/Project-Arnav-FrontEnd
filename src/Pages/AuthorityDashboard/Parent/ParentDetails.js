@@ -22,12 +22,11 @@ import {
   Typography,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { useLocationQuery, useNodeQuery } from "../../Context/Locations";
-import AddLocations from "./AddLocations";
-import EditLocations from "./EditLocations";
-import DeleteLocations from "./DeleteLocations"; // eslint-disable-next-line
-import QRGenerateLocations from "./QRGenerateLocations";
-
+import { useParentQuery } from "../../../Context/Locations";
+import AddParent from "./AddParent";
+import EditParent from "./EditParent";
+import DeleteParent from "./DeleteParent"; // eslint-disable-next-line
+import QRGenerateParent from "../QRGenerateLocations";
 const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
@@ -60,9 +59,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function NodeDetails() {
+export default function ParentDetails() {
   const classes = useStyles();
-  const { data } = useNodeQuery();
+  const { data } = useParentQuery();
   const [openAddLocation, setOpenAddLocation] = useState(false);
   const [selected, setSelected] = useState({ _id: "" });
   const [openEditLocation, setOpenEditLocation] = useState(false);
@@ -90,7 +89,7 @@ export default function NodeDetails() {
         >
           <Toolbar>
             <div className={classes.title}>
-              <Typography variant="h6">Node Details</Typography>
+              <Typography variant="h6">Parent Details</Typography>
               <IconButton>
                 <Info />
               </IconButton>
@@ -103,7 +102,7 @@ export default function NodeDetails() {
               }}
               style={{ background: "blue" }}
             >
-              <Tooltip title="Add Locations">
+              <Tooltip title="Add Parent">
                 <AddBox style={{ fill: "white" }} />
               </Tooltip>
             </IconButton>
@@ -129,25 +128,31 @@ export default function NodeDetails() {
               >
                 <TableCell
                   align="center"
-                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                >
                   Image
                 </TableCell>
-                <TableCell align="center" style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                <TableCell
+                  align="center"
+                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                >
                   User created
                 </TableCell>
-                 
-                <TableCell align="center" style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                <TableCell
+                  align="center"
+                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                >
                   Request Status
                 </TableCell>
-                <TableCell align="center" style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                <TableCell align="center"style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
                   Actions
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {data?.nodes?.map((row, i) => (
+              {data?.parents?.map((row, i) => (
                 <TableRow
-                  key={row.name}
+                  key={i}
                   style={{
                     display: "grid",
                     gridTemplateColumns: "10rem repeat(3,1fr)",
@@ -157,24 +162,21 @@ export default function NodeDetails() {
                 >
                   <TableCell align="center">
                     <img
-                      src={data.imageUrl}
+                      src={row.parentImageUrl}
                       style={{ width: "3rem", height: "3rem" }}
                       alt="location-img"
                     />
                   </TableCell>
-                  <TableCell align="center">{row?.user?.name}</TableCell>
-                  
+                  <TableCell align="center">{row?.parentUser?.name}</TableCell>
                   <TableCell align="center">{row.status}</TableCell>
-                  <TableCell
-                  align="center"
+                  <TableCell align="center"
                     style={{
                       display: "grid",
                       gridTemplateColumns: "repeat(4,1fr)",
-                      width: "90%",
+                      width: "75%",
                     }}
                   >
                     <IconButton
-                    
                       style={{ width: "3.5rem", height: "3.5rem" }}
                       onClick={() => {
                         setSelected(row);
@@ -219,22 +221,22 @@ export default function NodeDetails() {
           </Table>
         </TableContainer>
       </Paper>
-      <AddLocations
+      <AddParent
         openPopUp={openAddLocation}
         setOpenPopup={setOpenAddLocation}
       />
-      <EditLocations
+      <EditParent
         openPopUp={openEditLocation}
         setOpenPopup={setOpenEditLocation}
         selected={selected}
       />
-      <DeleteLocations
+      <DeleteParent
         openPopUp={openDeleteLocation}
         setOpenPopup={setOpenDeleteLocation}
         selected={selected}
       />{" "}
       {selected?._id && (
-        <QRGenerateLocations
+        <QRGenerateParent
           openPopUp={openQRLocation}
           setOpenPopup={setOpenQRLocation}
           selected={selected}
