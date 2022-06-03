@@ -9,8 +9,8 @@ import {
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
-import QrReader from "react-qr-scanner";
 import { useParticularLocationQuery } from "../../../Context/Locations";
+import { QrReader } from "react-qr-reader";
 
 const previewStyle = {
   width: "65rem",
@@ -28,8 +28,6 @@ const style = {
 };
 
 function QRPopup({ openPopUp, setOpenPopup }) {
-  // eslint-disable-next-line no-unused-vars
-  const [delay, setDelay] = useState(100);
   const [options, setOptions] = useState("rear");
   const [result, setResult] = useState("");
   const { SelectedLocation, SelectedLocationRefetch } =
@@ -114,18 +112,31 @@ function QRPopup({ openPopUp, setOpenPopup }) {
             </div>
           ) : (
             <React.Fragment>
-              <QrReader
+              {/* <QrReader
                 delay={delay}
                 style={previewStyle}
                 onError={handleError}
                 onScan={handleScan}
                 facingMode={options}
+              /> */}{" "}
+              <QrReader
+                onResult={(result, error) => {
+                  if (!!result) {
+                    handleScan(result?.text);
+                  }
+
+                  if (!!error) {
+                    handleError(error);
+                  }
+                }}
+                style={previewStyle}
               />
               <TextField
                 select
                 onChange={(e) => {
                   setOptions(e.target.value);
                 }}
+                value={options}
               >
                 <MenuItem value="rear">
                   <ListItemText primary={"rear"} />
