@@ -13,7 +13,7 @@ import QrReader from "react-qr-scanner";
 import { useParticularLocationQuery } from "../../../Context/Locations";
 
 const previewStyle = {
-  width: "75rem",
+  width: "65rem",
 };
 
 const style = {
