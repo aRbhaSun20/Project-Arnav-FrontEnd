@@ -12,10 +12,6 @@ import React, { useEffect, useState } from "react";
 import { useParticularLocationQuery } from "../../../Context/Locations";
 import { QrReader } from "react-qr-reader";
 
-const previewStyle = {
-  width: "65rem",
-};
-
 const style = {
   position: "absolute",
   top: "50%",
@@ -28,7 +24,8 @@ const style = {
 };
 
 function QRPopup({ openPopUp, setOpenPopup }) {
-  const [options, setOptions] = useState("rear");
+  const [options, setOptions] = useState([]);
+  const [selected, setSelected] = useState("");
   const [result, setResult] = useState("");
   const { SelectedLocation, SelectedLocationRefetch } =
     useParticularLocationQuery(result);
@@ -39,6 +36,7 @@ function QRPopup({ openPopUp, setOpenPopup }) {
       // console.log(JSON.parse(data.text))
       // const formatData = JSON.parse(data.text);
       if (result !== data.text) {
+        console.log(data.text);
         setResult(data.text);
         enqueueSnackbar("location fetched from QR succesfully", {
           variant: "success",
@@ -54,6 +52,19 @@ function QRPopup({ openPopUp, setOpenPopup }) {
   const handleError = (err) => {
     console.error(err);
   };
+
+  useEffect(() => {
+    if (!result)
+      navigator.mediaDevices.enumerateDevices().then((res) => {
+        const devices = [];
+        res.forEach((dev) => {
+          if (dev.kind === "videoinput") {
+            devices.push(dev);
+          }
+        });
+        setOptions(devices);
+      });
+  }, [result]);
 
   useEffect(() => {
     if (result) SelectedLocationRefetch();
@@ -111,7 +122,7 @@ function QRPopup({ openPopUp, setOpenPopup }) {
               </Button>
             </div>
           ) : (
-            <React.Fragment>
+            <div style={{height:"90%"}}>
               {/* <QrReader
                 delay={delay}
                 style={previewStyle}
@@ -122,30 +133,30 @@ function QRPopup({ openPopUp, setOpenPopup }) {
               <QrReader
                 onResult={(result, error) => {
                   if (!!result) {
-                    handleScan(result?.text);
+                    handleScan(result);
                   }
 
                   if (!!error) {
                     handleError(error);
                   }
-                }}
-                style={previewStyle}
+                }}containerStyle={{width:"60%"}}
+                constraints={{ deviceId: selected }}
+                style={{width:"90%"}}
               />
               <TextField
                 select
                 onChange={(e) => {
-                  setOptions(e.target.value);
+                  setSelected(e.target.value);
                 }}
                 value={options}
               >
-                <MenuItem value="rear">
-                  <ListItemText primary={"rear"} />
-                </MenuItem>
-                <MenuItem value="front">
-                  <ListItemText primary={"front"} />
-                </MenuItem>
+                {options.map((opt, i) => (
+                  <MenuItem value={opt.deviceId} key={i}>
+                    <ListItemText primary={opt.label} />
+                  </MenuItem>
+                ))}
               </TextField>
-            </React.Fragment>
+            </div>
           )}
         </Paper>
       </Modal>
