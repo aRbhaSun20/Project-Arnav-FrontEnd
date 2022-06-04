@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ParentDetails() {
   const classes = useStyles();
-  const { data } = useParentQuery();
+  const { ParentData } = useParentQuery();
   const [openAddLocation, setOpenAddLocation] = useState(false);
   const [selected, setSelected] = useState({ _id: "" });
   const [openEditLocation, setOpenEditLocation] = useState(false);
@@ -122,7 +122,7 @@ export default function ParentDetails() {
               <TableRow
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "10rem repeat(3,1fr)",
+                  gridTemplateColumns: "10rem repeat(4,1fr)",
                   width: "100%",
                 }}
               >
@@ -131,6 +131,12 @@ export default function ParentDetails() {
                   style={{ fontSize: "1.2rem", fontWeight: "bold" }}
                 >
                   Image
+                </TableCell>{" "}
+                <TableCell
+                  align="center"
+                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                >
+                  Parent Name
                 </TableCell>
                 <TableCell
                   align="center"
@@ -144,18 +150,21 @@ export default function ParentDetails() {
                 >
                   Request Status
                 </TableCell>
-                <TableCell align="center"style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                <TableCell
+                  align="center"
+                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                >
                   Actions
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {data?.parents?.map((row, i) => (
+              {ParentData?.parents?.map((row, i) => (
                 <TableRow
                   key={i}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "10rem repeat(3,1fr)",
+                    gridTemplateColumns: "10rem repeat(4,1fr)",
                     width: "100%",
                     backgroundColor: i % 2 === 0 ? "#f1f1f1" : null,
                   }}
@@ -167,9 +176,11 @@ export default function ParentDetails() {
                       alt="location-img"
                     />
                   </TableCell>
+                  <TableCell align="center">{row?.parentName}</TableCell>
                   <TableCell align="center">{row?.parentUser?.name}</TableCell>
                   <TableCell align="center">{row.status}</TableCell>
-                  <TableCell align="center"
+                  <TableCell
+                    align="center"
                     style={{
                       display: "grid",
                       gridTemplateColumns: "repeat(4,1fr)",
@@ -183,7 +194,7 @@ export default function ParentDetails() {
                         setOpenEditLocation(true);
                       }}
                     >
-                      <Tooltip title="Edit Location">
+                      <Tooltip title="Edit Parent">
                         <Edit style={{ fonSize: "1.5rem" }} />
                       </Tooltip>
                     </IconButton>
@@ -194,7 +205,7 @@ export default function ParentDetails() {
                       }}
                       style={{ width: "3.5rem", height: "3.5rem" }}
                     >
-                      <Tooltip title="Delete Location">
+                      <Tooltip title="Delete Parent">
                         <Delete style={{ fontSize: "1.5rem" }} />
                       </Tooltip>
                     </IconButton>
@@ -205,7 +216,7 @@ export default function ParentDetails() {
                       }}
                       style={{ width: "3.5rem", height: "3.5rem" }}
                     >
-                      <Tooltip title="Download Location QR code">
+                      <Tooltip title="Download Parent QR code">
                         <Download style={{ fontSize: "1.5rem" }} />
                       </Tooltip>
                     </IconButton>

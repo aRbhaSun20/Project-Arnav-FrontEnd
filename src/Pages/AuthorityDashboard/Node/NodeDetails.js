@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function NodeDetails() {
   const classes = useStyles();
-  const { data } = useNodeQuery();
+  const { NodeData } = useNodeQuery();
   const [openAddLocation, setOpenAddLocation] = useState(false);
   const [selected, setSelected] = useState({ _id: "" });
   const [openEditLocation, setOpenEditLocation] = useState(false);
@@ -103,7 +103,7 @@ export default function NodeDetails() {
               }}
               style={{ background: "blue" }}
             >
-              <Tooltip title="Add Locations">
+              <Tooltip title="Add Nodes">
                 <AddBox style={{ fill: "white" }} />
               </Tooltip>
             </IconButton>
@@ -123,7 +123,7 @@ export default function NodeDetails() {
               <TableRow
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "10rem repeat(3,1fr)",
+                  gridTemplateColumns: "10rem repeat(4,1fr)",
                   width: "100%",
                 }}
               >
@@ -132,6 +132,12 @@ export default function NodeDetails() {
                   style={{ fontSize: "1.2rem", fontWeight: "bold" }}
                 >
                   Image
+                </TableCell>
+                <TableCell
+                  align="center"
+                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                >
+                  Node Name
                 </TableCell>
                 <TableCell
                   align="center"
@@ -155,25 +161,25 @@ export default function NodeDetails() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data?.nodes?.map((row, i) => (
+              {NodeData?.nodes?.map((row, i) => (
                 <TableRow
-                  key={row.name}
+                  key={i}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "10rem repeat(3,1fr)",
+                    gridTemplateColumns: "10rem repeat(4,1fr)",
                     width: "100%",
                     backgroundColor: i % 2 === 0 ? "#f1f1f1" : null,
                   }}
                 >
                   <TableCell align="center">
                     <img
-                      src={data.imageUrl}
+                      src={row.imageUrl}
                       style={{ width: "3rem", height: "3rem" }}
                       alt="location-img"
                     />
-                  </TableCell>
+                  </TableCell>{" "}
+                  <TableCell align="center">{row?.placeName}</TableCell>
                   <TableCell align="center">{row?.user?.name}</TableCell>
-
                   <TableCell align="center">{row.status}</TableCell>
                   <TableCell
                     align="center"
@@ -228,10 +234,7 @@ export default function NodeDetails() {
           </Table>
         </TableContainer>
       </Paper>
-      <AddNode
-        openPopUp={openAddLocation}
-        setOpenPopup={setOpenAddLocation}
-      />
+      <AddNode openPopUp={openAddLocation} setOpenPopup={setOpenAddLocation} />
       <EditNode
         openPopUp={openEditLocation}
         setOpenPopup={setOpenEditLocation}

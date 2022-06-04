@@ -3,21 +3,29 @@ export const USER_ACTIONS = {
   LOGOUT: "logout",
 };
 
-export const UserReducers = (
-  InitialState = {
+export const UserReducers = (InitialState = getDAta(), actions) => {
+  switch (actions.type) {
+    case USER_ACTIONS.LOGIN:
+      const data = { ...InitialState, ...actions.payload };
+      localStorage.setItem("arnavLogin", JSON.stringify(data));
+      return data;
+
+    default:
+      return InitialState;
+  }
+};
+
+const getDAta = () => {
+  const data = localStorage.getItem("arnavLogin");
+  if (data) {
+    const returnData = JSON.parse(data);
+    if (returnData) return returnData;
+  }
+  return {
     _id: "",
     name: "",
     email: "",
     phone: "",
     token: "",
-  },
-  actions
-) => {
-  switch (actions.type) {
-    case USER_ACTIONS.LOGIN:
-      return { ...InitialState, ...actions.payload };
-
-    default:
-      return InitialState;
-  }
+  };
 };

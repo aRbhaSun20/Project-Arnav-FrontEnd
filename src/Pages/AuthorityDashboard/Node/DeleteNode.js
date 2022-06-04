@@ -1,9 +1,20 @@
 import { Close } from "@mui/icons-material";
-import { Button, IconButton, Modal, Paper, Typography } from "@mui/material";
-import React from "react";
-import { useLocationQuery } from "../../../Context/Locations";
+import {
+  Button,
+  IconButton,
+  Modal,
+  Paper,
+  Typography,
+  CircularProgress,
+  Box,
+} from "@mui/material";
+import React, { useState } from "react";
+import { useNodeQuery } from "../../../Context/Locations";
 import { axiosSendGraphQlRequest } from "../../../util/AxiosRequest";
 import { useSnackbar } from "notistack";
+import { green } from "@mui/material/colors";
+import { storage } from "../../../util/firebaseconfig";
+import { ref, deleteObject } from "firebase/storage";
 
 const style = {
   position: "absolute",
@@ -17,27 +28,53 @@ const style = {
 };
 
 function DeleteNode({ openPopUp, setOpenPopup, selected }) {
-  const { LocationRefetch } = useLocationQuery();
+  const { NodeRefetch } = useNodeQuery();
+  const [loading, setLoading] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
+    if (selected.fileName) {
+      try {
+        if (!loading) setLoading(true);
+
+        const imageRef = ref(storage, selected.fileName);
+        deleteObject(imageRef)
+          .then(() => {
+            deleteNodes();
+            enqueueSnackbar("File deleted successfully", {
+              variant: "success",
+            });
+          })
+          .catch((error) => {
+            enqueueSnackbar("FIle Deletion Failed", { variant: "error" });
+            console.log(error.message);
+          });
+      } catch {
+        enqueueSnackbar("FIle Deletion Failed", { variant: "error" });
+      }
+    } else {
+      deleteNodes();
+    }
+  };
+
+  const deleteNodes = async () => {
     try {
       const {
-        data: { deleteLocation },
+        data: { deleteNodes },
         errors,
       } = await axiosSendGraphQlRequest({
-        query: `mutation deleteLocation($_id: String!) {
-          deleteLocation( _id:$_id ) {
+        query: `mutation deleteNodes($_id: String!) {
+          deleteNodes( _id:$_id ) {
               _id
               placeName
           }
         }`,
         variables: { _id: selected?._id },
       });
-      if (deleteLocation) {
-        enqueueSnackbar("Location Delete Succesful", { variant: "success" });
-        LocationRefetch();
+      if (deleteNodes) {
+        enqueueSnackbar("Node Delete Succesful", { variant: "success" });
+        NodeRefetch();
         setOpenPopup(false);
       }
 
@@ -45,7 +82,7 @@ function DeleteNode({ openPopUp, setOpenPopup, selected }) {
         enqueueSnackbar(errors[0].message, { variant: "error" });
       }
     } catch {
-      enqueueSnackbar("Location delete Failed", { variant: "error" });
+      enqueueSnackbar("Node delete Failed", { variant: "error" });
     }
   };
 
@@ -78,7 +115,7 @@ function DeleteNode({ openPopUp, setOpenPopup, selected }) {
           }}
         >
           <Typography variant="h5">
-            <b>Delete Location</b>{" "}
+            <b>Delete Node</b>{" "}
           </Typography>
           <IconButton
             onClick={() => {
@@ -90,7 +127,12 @@ function DeleteNode({ openPopUp, setOpenPopup, selected }) {
         </div>
         <div style={{ display: "flex", flexFlow: "row wrap", gap: "1rem" }}>
           <Typography>
-            <b>Are you sure you want to delete {selected?.placeName}</b>
+            <b>
+              Are you sure you want to delete{" "}
+              <span style={{ fontSize: "1.25rem" }}>
+                {selected?.parentName}
+              </span>{" "}
+            </b>
           </Typography>
         </div>
         <div
@@ -117,20 +159,36 @@ function DeleteNode({ openPopUp, setOpenPopup, selected }) {
           >
             Cancel
           </Button>
-          <Button
-            variant="outlined"
-            style={{
-              backgroundColor: "blue",
-              height: 54,
-              width: "17rem",
-              borderRadius: 8,
-              color: "white",
-              fontWeight: "bold",
-            }}
-            onClick={handleSubmit}
-          >
-            Submit
-          </Button>
+          <Box sx={{ m: 1, position: "relative" }}>
+            <Button
+              variant="outlined"
+              disabled={loading}
+              style={{
+                backgroundColor: loading ? "lightgrey" : "blue",
+                height: 54,
+                width: "17rem",
+                borderRadius: 8,
+                color: "white",
+                fontWeight: "bold",
+              }}
+              onClick={handleSubmit}
+            >
+              Submit
+            </Button>{" "}
+            {loading && (
+              <CircularProgress
+                size={36}
+                sx={{
+                  color: green[500],
+                  position: "absolute",
+                  top: "40%",
+                  left: "50%",
+                  marginTop: "-12px",
+                  marginLeft: "-12px",
+                }}
+              />
+            )}
+          </Box>
         </div>
       </Paper>
     </Modal>

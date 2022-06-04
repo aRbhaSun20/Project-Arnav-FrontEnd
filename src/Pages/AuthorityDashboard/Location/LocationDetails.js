@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function LocationDetails() {
   const classes = useStyles();
-  const { data } = useLocationQuery();
+  const { LocationData } = useLocationQuery();
   const [openAddLocation, setOpenAddLocation] = useState(false);
   const [selected, setSelected] = useState({ _id: "" });
   const [openEditLocation, setOpenEditLocation] = useState(false);
@@ -135,7 +135,8 @@ export default function LocationDetails() {
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
                   User created
-                </TableCell> <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                </TableCell>{" "}
+                <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
                   Source
                 </TableCell>
                 <TableCell style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
@@ -150,7 +151,7 @@ export default function LocationDetails() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data?.locations?.map((row, i) => (
+              {LocationData?.locations?.map((row, i) => (
                 <TableRow
                   key={i}
                   style={{
@@ -162,7 +163,7 @@ export default function LocationDetails() {
                 >
                   <TableCell align="center">
                     <img
-                      src={data.videoUrl}
+                      src={row.imageUrl}
                       style={{ width: "3rem", height: "3rem" }}
                       alt="location-img"
                     />

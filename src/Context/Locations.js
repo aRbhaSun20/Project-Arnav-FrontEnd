@@ -2,7 +2,7 @@ import { useQuery } from "react-query";
 import { axiosSendGraphQlRequest } from "../util/AxiosRequest";
 
 export const useParentQuery = () => {
-  const { data, refetch: ParentRefetch } = useQuery(
+  const { data: ParentData, refetch: ParentRefetch } = useQuery(
     "parent datas",
     async () => {
       const {
@@ -18,17 +18,18 @@ export const useParentQuery = () => {
               name
             }
             parentImageUrl
+            fileName
           }
       }`,
       });
       return { parents, errors };
     }
   );
-  return { data, ParentRefetch };
+  return { ParentData, ParentRefetch };
 };
 
 export const useNodeQuery = () => {
-  const { data, refetch: NodeRefetch } = useQuery(
+  const { data: NodeData, refetch: NodeRefetch } = useQuery(
     "node datas",
     async () => {
       const {
@@ -46,18 +47,18 @@ export const useNodeQuery = () => {
             placeName
             coordinates
             userId
-            
+            fileName
           }
         }`,
       });
       return { nodes, errors };
     }
   );
-  return { data, NodeRefetch };
+  return { NodeData, NodeRefetch };
 };
 
 export const useLocationQuery = () => {
-  const { data, refetch: LocationRefetch } = useQuery(
+  const { data: LocationData, refetch: LocationRefetch } = useQuery(
     "location datas",
     async () => {
       const {
@@ -82,13 +83,14 @@ export const useLocationQuery = () => {
               }
             }
             parentId
+            fileName
           }
         }`,
       });
       return { locations, errors };
     }
   );
-  return { data, LocationRefetch };
+  return { LocationData, LocationRefetch };
 };
 
 export const useParticularLocationQuery = (locationId) => {

@@ -22,7 +22,7 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { NAV_ACTIONS } from "../../Context/NavigationReducers";
 
-const drawerWidth = 240;
+const drawerWidth = 315;
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",

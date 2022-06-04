@@ -2,15 +2,23 @@ import { Close } from "@mui/icons-material";
 import {
   Button,
   IconButton,
+  Input,
   Modal,
   Paper,
   TextField,
   Typography,
+  CircularProgress,
+  Box,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useLocationQuery } from "../../../Context/Locations";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useParentQuery } from "../../../Context/Locations";
 import { axiosSendGraphQlRequest } from "../../../util/AxiosRequest";
 import { useSnackbar } from "notistack";
+import { green } from "@mui/material/colors";
+import { storage } from "../../../util/firebaseconfig";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { v4 as uuidV4 } from "uuid";
+import ImageCapture from "react-image-data-capture";
 
 const style = {
   position: "absolute",
@@ -25,7 +33,11 @@ const style = {
 
 function EditParent({ openPopUp, setOpenPopup, selected }) {
   const [placeName, setLocation] = useState("");
-  const { LocationRefetch } = useLocationQuery();
+
+  const { ParentRefetch } = useParentQuery();
+  const [loading, setLoading] = useState(false);
+  const [choice, setChoice] = useState("file");
+  const [imgSrc, setImgSrc] = useState(null);
 
   // useEffect(() => {
   //   if (navigator.geolocation) {
@@ -36,38 +48,129 @@ function EditParent({ openPopUp, setOpenPopup, selected }) {
   // }, []);
 
   useEffect(() => {
-    if (selected?.placeName) setLocation(selected.placeName);
+    if (selected?.parentName) setLocation(selected.parentName);
   }, [selected]);
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
+    if (imgSrc) {
+      try {
+        if (!loading) setLoading(true);
+        const fileName = `${uuidV4()}.${getType(imgSrc.type)}`;
+        const imageRef = ref(storage, fileName);
+        const uploadTask = uploadBytesResumable(imageRef, imgSrc);
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress = snapshot.bytesTransferred / snapshot.totalBytes;
+            if (progress === 1) {
+              setLoading(false);
+              enqueueSnackbar("File uploaded successfully", {
+                variant: "success",
+              });
+            }
+          },
+          (error) => {
+            console.log(error.message);
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+              createLocation(url, fileName);
+              console.log(url);
+            });
+          }
+        );
+      } catch {
+        enqueueSnackbar("Parent Image Creation Failed", { variant: "error" });
+      }
+    } else {
+      createLocationNOUrl();
+    }
+  };
+
+  const createLocation = async (dataUrl, fileName) => {
     try {
       const {
-        data: { editLocation },
+        data: { editParent },
         errors,
       } = await axiosSendGraphQlRequest({
-        query: `mutation editLocation($_id: String, $placeName: String) {
-          editLocation( _id:$_id ,placeName: $placeName) {
+        query: `mutation editParent($_id: String, $placeName: String, $dataUrl: String, $fileName: String) {
+          editParent( _id:$_id ,parentName: $placeName, parentImageUrl:  $dataUrl, fileName: $fileName) {
               _id
-              placeName
+              parentName
           }
         }`,
-        variables: { placeName, _id: selected?._id },
+        variables: { placeName, _id: selected?._id, dataUrl, fileName },
       });
-      if (editLocation) {
-        enqueueSnackbar("Location Edited Succesful", { variant: "success" });
-        LocationRefetch();
+      if (editParent) {
+        enqueueSnackbar("Parent Edited with image change Succesful", {
+          variant: "success",
+        });
+        ParentRefetch();
         setOpenPopup(false);
       }
-
       if (Array.isArray(errors) && errors[0]) {
         enqueueSnackbar(errors[0].message, { variant: "error" });
       }
     } catch {
-      enqueueSnackbar("Location Edit Failed", { variant: "error" });
+      enqueueSnackbar("Parent Edit Failed", { variant: "error" });
     }
   };
+
+  const createLocationNOUrl = async () => {
+    try {
+      const {
+        data: { editParent },
+        errors,
+      } = await axiosSendGraphQlRequest({
+        query: `mutation editParent($_id: String, $placeName: String) {
+          editParent( _id:$_id ,parentName: $placeName) {
+              _id
+              parentName
+          }
+        }`,
+        variables: { placeName, _id: selected?._id },
+      });
+      if (editParent) {
+        enqueueSnackbar("Parent Edited Succesful", { variant: "success" });
+        ParentRefetch();
+        setOpenPopup(false);
+      }
+      if (Array.isArray(errors) && errors[0]) {
+        enqueueSnackbar(errors[0].message, { variant: "error" });
+      }
+    } catch {
+      enqueueSnackbar("Parent Edit Failed", { variant: "error" });
+    }
+  };
+
+  const handleChange = (e) => {
+    setImgSrc(e.target.files[0]);
+  };
+
+  const onCapture = (imageData) => {
+    // read as file
+    const blob = imageData.blob;
+    blob.name = uuidV4();
+    blob.lastModified = new Date();
+
+    const file = new File([blob], blob.name, {
+      type: blob.type,
+    });
+    setImgSrc(file);
+    enqueueSnackbar("Image Capture Successful", {
+      variant: "success",
+    });
+  };
+
+  // Use useCallback to avoid unexpected behaviour while rerendering
+  const onError = useCallback((error) => {
+    console.log(error);
+  }, []);
+
+  // Use useMemo to avoid unexpected behaviour while rerendering
+  const config = useMemo(() => ({ video: true }), []);
 
   return (
     <Modal
@@ -98,7 +201,7 @@ function EditParent({ openPopUp, setOpenPopup, selected }) {
           }}
         >
           <Typography variant="h5">
-            <b>Edit Location</b>{" "}
+            <b>Edit Parent</b>{" "}
           </Typography>
           <IconButton
             onClick={() => {
@@ -108,14 +211,95 @@ function EditParent({ openPopUp, setOpenPopup, selected }) {
             <Close />
           </IconButton>
         </div>
-        <div style={{ display: "flex", flexFlow: "row wrap", gap: "1rem" }}>
+        <div style={{ display: "flex", flexFlow: "column", gap: "1rem" }}>
           <TextField
             value={placeName}
             variant="outlined"
             onChange={(e) => setLocation(e.target.value)}
-            label="Location Name"
+            label="Parent Name"
             style={{ width: 400 }}
-          />
+          />{" "}
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Button
+              onClick={() => {
+                setChoice("file");
+              }}
+              style={{
+                backgroundColor: "blue",
+                height: 54,
+                width: "17rem",
+                borderRadius: 8,
+                color: "white",
+                fontWeight: "bold",
+              }}
+            >
+              Choose file
+            </Button>
+            <Button
+              onClick={() => {
+                setChoice("image");
+              }}
+              style={{
+                backgroundColor: "blue",
+                height: 54,
+                width: "17rem",
+                borderRadius: 8,
+                color: "white",
+                fontWeight: "bold",
+              }}
+            >
+              Click Image
+            </Button>{" "}
+          </div>{" "}
+          {imgSrc ? (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <img
+                src={URL.createObjectURL(imgSrc)}
+                alt="parent-img"
+                style={{ width: 300, margin: "auto" }}
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                style={{
+                  backgroundColor: "blue",
+                  height: 54,
+                  width: "17rem",
+                  borderRadius: 8,
+                  color: "white",
+                  fontWeight: "bold",
+                }}
+                onClick={() => {
+                  setImgSrc(null);
+                }}
+              >
+                Retry
+              </Button>
+            </div>
+          ) : choice === "file" ? (
+            <Input type="file" onChange={handleChange} />
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <ImageCapture
+                onCapture={onCapture}
+                onError={onError}
+                width={300}
+                userMediaConfig={config}
+              />
+            </div>
+          )}
         </div>
         <div
           style={{
@@ -141,20 +325,36 @@ function EditParent({ openPopUp, setOpenPopup, selected }) {
           >
             Cancel
           </Button>
-          <Button
-            variant="outlined"
-            style={{
-              backgroundColor: "blue",
-              height: 54,
-              width: "17rem",
-              borderRadius: 8,
-              color: "white",
-              fontWeight: "bold",
-            }}
-            onClick={handleSubmit}
-          >
-            Submit
-          </Button>
+          <Box sx={{ m: 1, position: "relative" }}>
+            <Button
+              variant="outlined"
+              disabled={loading}
+              style={{
+                backgroundColor: loading ? "lightgrey" : "blue",
+                height: 54,
+                width: "17rem",
+                borderRadius: 8,
+                color: "white",
+                fontWeight: "bold",
+              }}
+              onClick={handleSubmit}
+            >
+              Submit
+            </Button>{" "}
+            {loading && (
+              <CircularProgress
+                size={36}
+                sx={{
+                  color: green[500],
+                  position: "absolute",
+                  top: "40%",
+                  left: "50%",
+                  marginTop: "-12px",
+                  marginLeft: "-12px",
+                }}
+              />
+            )}
+          </Box>
         </div>
       </Paper>
     </Modal>
@@ -162,3 +362,8 @@ function EditParent({ openPopUp, setOpenPopup, selected }) {
 }
 
 export default EditParent;
+
+const getType = (data) => {
+  const types = data.split("/").reverse();
+  return types[0];
+};

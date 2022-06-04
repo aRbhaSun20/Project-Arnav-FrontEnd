@@ -10,14 +10,16 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useLocationQuery } from "../../../Context/Locations";
+import React, { useCallback, useMemo, useState } from "react";
+import { useParentQuery } from "../../../Context/Locations";
 import { axiosSendGraphQlRequest } from "../../../util/AxiosRequest";
 import { useSnackbar } from "notistack";
 import { useSelector } from "react-redux";
 import { storage } from "../../../util/firebaseconfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { green } from "@mui/material/colors";
+import { v4 as uuidV4 } from "uuid";
+import ImageCapture from "react-image-data-capture";
 
 const style = {
   position: "absolute",
@@ -33,81 +35,138 @@ const style = {
 function AddParent({ openPopUp, setOpenPopup }) {
   const [placeName, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
-  const [files, setFiles] = useState(null);
-  const [coordinates, setCoordinates] = useState([]);
-  const { LocationRefetch } = useLocationQuery();
+  // const [coordinates, setCoordinates] = useState([]);
+  const { ParentRefetch } = useParentQuery();
   const user = useSelector((state) => state.user);
+  const [choice, setChoice] = useState("file");
+  const [imgSrc, setImgSrc] = useState(null);
 
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(({ coords }) => {
-        setCoordinates([coords.latitude, coords.longitude]);
-      });
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (navigator.geolocation) {
+  //     navigator.geolocation.getCurrentPosition(({ coords }) => {
+  //       setCoordinates([coords.latitude, coords.longitude]);
+  //     });
+  //   }
+  // }, []);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const handleSubmit = () => {
-    try {
-      if (!loading) setLoading(true);
-      const imageRef = ref(storage, files.name);
-      const uploadTask = uploadBytesResumable(imageRef, files);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress = snapshot.bytesTransferred / snapshot.totalBytes;
-          if (progress === 1) {
-            setLoading(false);
-            enqueueSnackbar("File uploaded successfully ", {
-              variant: "success",
+    if (imgSrc) {
+      try {
+        if (!loading) setLoading(true);
+        const fileName = `${uuidV4()}.${getType(imgSrc.type)}`;
+        const imageRef = ref(storage, fileName);
+        const uploadTask = uploadBytesResumable(imageRef, imgSrc);
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress = snapshot.bytesTransferred / snapshot.totalBytes;
+            if (progress === 1) {
+              setLoading(false);
+              enqueueSnackbar("File uploaded successfully", {
+                variant: "success",
+              });
+            }
+          },
+          (error) => {
+            console.log(error.message);
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+              createLocation(url, fileName);
+              console.log(url);
             });
           }
-        },
-        (error) => {
-          console.log(error.message);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-            createLocation(url);
-          });
-        }
-      );
-    } catch {
-      enqueueSnackbar("Location Image Creation Failed", { variant: "error" });
+        );
+      } catch {
+        enqueueSnackbar("Parent Image Creation Failed", { variant: "error" });
+      }
+    } else {
+      createLocationNOUrl();
     }
   };
 
-  const createLocation = async (dataUrl) => {
+  const createLocation = async (dataUrl, fileName) => {
     try {
       const {
-        data: { addLocation },
+        data: { addParent },
         errors,
       } = await axiosSendGraphQlRequest({
-        query: `mutation addLocation($placeName: String, $coordinates: [Float], $userId: String) {
-          addLocation( placeName: $placeName, coordinates: $coordinates, userId: $userId) {
+        query: `mutation addParent($placeName: String, $userId: String, $dataUrl: String, $fileName: String) {
+          addParent( parentName: $placeName, parentImageUrl: $dataUrl, userId: $userId, fileName: $fileName) {
               _id
-              placeName
+              parentName
           }
         }`,
-        variables: { placeName, coordinates, userId: user._id },
+        variables: { placeName, userId: user._id, dataUrl, fileName },
       });
-      if (addLocation) {
-        enqueueSnackbar("Location Created Succesful", { variant: "success" });
-        LocationRefetch();
+      if (addParent) {
+        enqueueSnackbar("Parent Created Succesful", { variant: "success" });
+        ParentRefetch();
         setOpenPopup(false);
       }
       if (Array.isArray(errors) && errors[0]) {
         enqueueSnackbar(errors[0].message, { variant: "error" });
       }
     } catch {
-      enqueueSnackbar("Location Creation Failed", { variant: "error" });
+      enqueueSnackbar("Parent Creation Failed", { variant: "error" });
+    }
+  };
+
+  const createLocationNOUrl = async () => {
+    try {
+      const {
+        data: { addParent },
+        errors,
+      } = await axiosSendGraphQlRequest({
+        query: `mutation addParent($placeName: String, $userId: String) {
+          addParent( parentName: $placeName, userId: $userId) {
+              _id
+              parentName
+          }
+        }`,
+        variables: { placeName, userId: user._id },
+      });
+      if (addParent) {
+        enqueueSnackbar("Parent Created Succesful", { variant: "success" });
+        ParentRefetch();
+        setOpenPopup(false);
+      }
+      if (Array.isArray(errors) && errors[0]) {
+        enqueueSnackbar(errors[0].message, { variant: "error" });
+      }
+    } catch {
+      enqueueSnackbar("Parent Creation Failed", { variant: "error" });
     }
   };
 
   const handleChange = (e) => {
-    setFiles(e.target.files[0]);
+    setImgSrc(e.target.files[0]);
   };
+
+  const onCapture = (imageData) => {
+    // read as file
+    const blob = imageData.blob;
+    blob.name = uuidV4();
+    blob.lastModified = new Date();
+
+    const file = new File([blob], blob.name, {
+      type: blob.type,
+    });
+    setImgSrc(file);
+    enqueueSnackbar("Image Capture Successful", {
+      variant: "success",
+    });
+  };
+
+  // Use useCallback to avoid unexpected behaviour while rerendering
+  const onError = useCallback((error) => {
+    console.log(error);
+  }, []);
+
+  // Use useMemo to avoid unexpected behaviour while rerendering
+  const config = useMemo(() => ({ video: true }), []);
 
   return (
     <Modal
@@ -148,15 +207,95 @@ function AddParent({ openPopUp, setOpenPopup }) {
             <Close />
           </IconButton>
         </div>
-        <div style={{ display: "flex", flexFlow: "row wrap", gap: "1rem" }}>
+        <div style={{ display: "flex", flexFlow: "column", gap: "1rem" }}>
           <TextField
             value={placeName}
             variant="outlined"
             onChange={(e) => setLocation(e.target.value)}
-            label="Location Name"
+            label="Parent Name"
             style={{ width: 400 }}
           />
-          <Input type="file" onChange={handleChange} />
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Button
+              onClick={() => {
+                setChoice("file");
+              }}
+              style={{
+                backgroundColor: "blue",
+                height: 54,
+                width: "17rem",
+                borderRadius: 8,
+                color: "white",
+                fontWeight: "bold",
+              }}
+            >
+              Choose file
+            </Button>
+            <Button
+              onClick={() => {
+                setChoice("image");
+              }}
+              style={{
+                backgroundColor: "blue",
+                height: 54,
+                width: "17rem",
+                borderRadius: 8,
+                color: "white",
+                fontWeight: "bold",
+              }}
+            >
+              Click Image
+            </Button>
+          </div>
+          {imgSrc ? (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <img
+                src={URL.createObjectURL(imgSrc)}
+                alt="parent-img"
+                style={{ width: 300, margin: "auto" }}
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                style={{
+                  backgroundColor: "blue",
+                  height: 54,
+                  width: "17rem",
+                  borderRadius: 8,
+                  color: "white",
+                  fontWeight: "bold",
+                }}
+                onClick={() => {
+                  setImgSrc(null);
+                }}
+              >
+                Retry
+              </Button>
+            </div>
+          ) : choice === "file" ? (
+            <Input type="file" onChange={handleChange} />
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <ImageCapture
+                onCapture={onCapture}
+                onError={onError}
+                width={300}
+                userMediaConfig={config}
+              />
+            </div>
+          )}
         </div>
         <div
           style={{
@@ -196,7 +335,7 @@ function AddParent({ openPopUp, setOpenPopup }) {
               }}
               onClick={handleSubmit}
             >
-              Accept terms
+              Submit
             </Button>
             {loading && (
               <CircularProgress
@@ -219,3 +358,8 @@ function AddParent({ openPopUp, setOpenPopup }) {
 }
 
 export default AddParent;
+
+const getType = (data) => {
+  const types = data.split("/").reverse();
+  return types[0];
+};
