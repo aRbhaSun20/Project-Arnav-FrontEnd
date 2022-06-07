@@ -25,7 +25,7 @@ function VideoHandler({ handleVideoChange, neighId }) {
     if (mediaBlobUrl && !videoStatus.startStop) {
       saveFile();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line 
   }, [mediaBlobUrl]);
 
   const saveFile = async () => {
