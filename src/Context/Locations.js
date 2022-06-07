@@ -71,7 +71,7 @@ export const useLocationQuery = () => {
             user{
               name
             }
-            videoUrl
+            imageUrl
             source{
               placeName
             }

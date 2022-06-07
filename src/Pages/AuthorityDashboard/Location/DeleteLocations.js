@@ -9,7 +9,7 @@ import {
   Box,
 } from "@mui/material";
 import React, { useState } from "react";
-import { useParentQuery } from "../../../Context/Locations";
+import { useLocationQuery } from "../../../Context/Locations";
 import { axiosSendGraphQlRequest } from "../../../util/AxiosRequest";
 import { useSnackbar } from "notistack";
 import { green } from "@mui/material/colors";
@@ -28,12 +28,13 @@ const style = {
 };
 
 function DeleteLocation({ openPopUp, setOpenPopup, selected }) {
-  const { ParentRefetch } = useParentQuery();
+  const { LocationRefetch } = useLocationQuery();
   const [loading, setLoading] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const handleSubmit = () => {
+    deleteLocation();
     if (selected.fileName) {
       try {
         if (!loading) setLoading(true);
@@ -41,7 +42,6 @@ function DeleteLocation({ openPopUp, setOpenPopup, selected }) {
         const imageRef = ref(storage, selected.fileName);
         deleteObject(imageRef)
           .then(() => {
-            deleteParent();
             enqueueSnackbar("File deleted successfully", {
               variant: "success",
             });
@@ -53,28 +53,25 @@ function DeleteLocation({ openPopUp, setOpenPopup, selected }) {
       } catch {
         enqueueSnackbar("FIle Deletion Failed", { variant: "error" });
       }
-    } else {
-      deleteParent();
     }
   };
 
-  const deleteParent = async () => {
+  const deleteLocation = async () => {
     try {
       const {
-        data: { deleteParent },
+        data: { deleteLocation },
         errors,
       } = await axiosSendGraphQlRequest({
-        query: `mutation deleteParent($_id: String!) {
-          deleteParent( _id:$_id ) {
+        query: `mutation deleteLocation($_id: String!) {
+          deleteLocation( _id:$_id ) {
               _id
-              parentName
           }
         }`,
         variables: { _id: selected?._id },
       });
-      if (deleteParent) {
+      if (deleteLocation) {
         enqueueSnackbar("Location Delete Succesful", { variant: "success" });
-        ParentRefetch();
+        LocationRefetch();
         setOpenPopup(false);
       }
 

@@ -3,9 +3,9 @@ import {
   Modal,
   Paper,
   Typography,
-  TextField,
-  MenuItem,
-  ListItemText,
+  // TextField,
+  // MenuItem,
+  // ListItemText,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
@@ -24,8 +24,7 @@ const style = {
 };
 
 function QRPopup({ openPopUp, setOpenPopup }) {
-  const [options, setOptions] = useState([]);
-  const [selected, setSelected] = useState("");
+  // const [selected, setSelected] = useState("user");
   const [result, setResult] = useState("");
   const { SelectedLocation, SelectedLocationRefetch } =
     useParticularLocationQuery(result);
@@ -52,19 +51,6 @@ function QRPopup({ openPopUp, setOpenPopup }) {
   const handleError = (err) => {
     console.error(err);
   };
-
-  useEffect(() => {
-    if (!result)
-      navigator.mediaDevices.enumerateDevices().then((res) => {
-        const devices = [];
-        res.forEach((dev) => {
-          if (dev.kind === "videoinput") {
-            devices.push(dev);
-          }
-        });
-        setOptions(devices);
-      });
-  }, [result]);
 
   useEffect(() => {
     if (result) SelectedLocationRefetch();
@@ -122,14 +108,14 @@ function QRPopup({ openPopUp, setOpenPopup }) {
               </Button>
             </div>
           ) : (
-            <div style={{height:"90%"}}>
-              {/* <QrReader
-                delay={delay}
-                style={previewStyle}
-                onError={handleError}
-                onScan={handleScan}
-                facingMode={options}
-              /> */}{" "}
+            <div
+              style={{
+                height: "90%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <QrReader
                 onResult={(result, error) => {
                   if (!!result) {
@@ -139,25 +125,25 @@ function QRPopup({ openPopUp, setOpenPopup }) {
                   if (!!error) {
                     handleError(error);
                   }
-                }}containerStyle={{width:"60%"}}
-                constraints={{ deviceId: selected }}
-                style={{width:"90%"}}
-              />
-              <TextField
-                select
-                onChange={(e) => {
-                  setSelected(e.target.value);
                 }}
-                value={options}
-              >
-                {options.map((opt, i) => (
-                  <MenuItem value={opt.deviceId} key={i}>
-                    <ListItemText primary={opt.label} />
-                  </MenuItem>
-                ))}
-              </TextField>
+                constraints={{ facingMode: "environment" }}
+                containerStyle={{ width: "80%" }}
+                style={{ width: "90%" }}
+              />
             </div>
           )}
+          {/* <TextField
+            select
+            label="Camera Type"
+            onChange={(e) => setSelected(e.target.value)}
+          >
+            <MenuItem value="user">
+              <ListItemText primary="Front Camera" />
+            </MenuItem>{" "}
+            <MenuItem value="environment">
+              <ListItemText primary="Rear Camera" />
+            </MenuItem>
+          </TextField> */}
         </Paper>
       </Modal>
     </React.Fragment>

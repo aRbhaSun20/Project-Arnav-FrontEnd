@@ -1,4 +1,4 @@
-import { Close } from "@mui/icons-material";
+import { Close, ExpandMore } from "@mui/icons-material";
 import {
   Button,
   IconButton,
@@ -13,6 +13,12 @@ import {
   ListItemText,
   Chip,
   Checkbox,
+  Stepper,
+  Step,
+  StepLabel,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
 import React, { useCallback, useMemo, useState } from "react";
 import {
@@ -23,11 +29,11 @@ import {
 import { axiosSendGraphQlRequest } from "../../../util/AxiosRequest";
 import { useSnackbar } from "notistack";
 import { useSelector } from "react-redux";
-import { storage } from "../../../util/firebaseconfig";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { uploadFIles } from "../../../util/firebaseconfig";
 import { green } from "@mui/material/colors";
 import { v4 as uuidV4 } from "uuid";
 import ImageCapture from "react-image-data-capture";
+import VideoHandler from "./VideoHandler";
 
 const style = {
   position: "absolute",
@@ -40,6 +46,8 @@ const style = {
   p: 4,
 };
 
+const steps = ["Source Details", "Neighbour Details"];
+
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -50,12 +58,18 @@ const MenuProps = {
     },
   },
 };
-
+const NEIGHBOR_DETAILS = {
+  direction: "",
+  videoUrl: "",
+};
+const DIRECTIONS = ["FRONT", "RIGHT", "FRONT"];
 function AddLocation({ openPopUp, setOpenPopup }) {
   const [placeName, setLocation] = useState({
     sourceId: "",
     neighborIds: [],
     parentId: "",
+    imageUrl: "",
+    imageName: "",
   });
   const [loading, setLoading] = useState(false);
   // const [coordinates, setCoordinates] = useState([]);
@@ -63,69 +77,106 @@ function AddLocation({ openPopUp, setOpenPopup }) {
   const user = useSelector((state) => state.user);
   const [choice, setChoice] = useState("file");
   const [imgSrc, setImgSrc] = useState(null);
+  const [activeStep, setActiveStep] = useState(0);
+
+  const [neighborData, setNeighbourData] = useState({});
 
   const { ParentData } = useParentQuery();
   const { NodeData } = useNodeQuery();
-  // useEffect(() => {
-  //   if (navigator.geolocation) {
-  //     navigator.geolocation.getCurrentPosition(({ coords }) => {
-  //       setCoordinates([coords.latitude, coords.longitude]);
-  //     });
-  //   }
-  // }, []);
+
+  const [expanded, setExpanded] = useState(false);
+
+  const handleAccChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) =>
+      Math.min(prevActiveStep + 1, steps.length)
+    );
+  };
+
+  const handleInputAccChange = (e, neighId) => {
+    const { name, value, files } = e.target;
+    if (name === "inpFIle") {
+      setNeighbourData((state) => ({
+        ...state,
+        [neighId]: { ...validataData(state[neighId]), videoData: files[0] },
+      }));
+    } else {
+      setNeighbourData((state) => {
+        const data = {
+          ...state,
+          [neighId]: { ...validataData(state[neighId]), [name]: value },
+        };
+        return { ...data };
+      });
+    }
+  };
 
   const { enqueueSnackbar } = useSnackbar();
 
   const handleSubmit = () => {
     try {
-      if (!loading) setLoading(true);
-      const fileName = `${uuidV4()}.${getType(imgSrc.type)}`;
-      const imageRef = ref(storage, fileName);
-      const uploadTask = uploadBytesResumable(imageRef, imgSrc);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress = snapshot.bytesTransferred / snapshot.totalBytes;
-          if (progress === 1) {
-            setLoading(false);
-            enqueueSnackbar("File uploaded successfully", {
-              variant: "success",
-            });
-          }
-        },
-        (error) => {
-          console.log(error.message);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-            createLocation(url, fileName);
-            console.log(url);
-          });
-        }
-      );
+      setLoading(true);
+      if (imgSrc) uploadFIles(imgSrc, handleLocationImage);
     } catch {
-      enqueueSnackbar("Location Image Creation Failed", { variant: "error" });
+      enqueueSnackbar("File creation failed", { variant: "error" });
     }
   };
 
-  const createLocation = async (dataUrl, fileName) => {
+  const handleVideoSubmit = async (dataUrl, videoName, neighId) => {
+    setNeighbourData((state) => {
+      const data = {
+        ...state,
+        [neighId]: {
+          ...validataData(state.neighId),
+          videoUrl: dataUrl,
+          videoName,
+        },
+      };
+      console.log(data);
+      return { ...data };
+    });
+    enqueueSnackbar("Video File upload Successful", { variant: "success" });
+  };
+
+  const handleLocationImage = async (dataUrl, name) => {
+    setLocation((state) => ({ ...state, imageUrl: dataUrl, imageName: name }));
+    createLocation({ imageUrl: dataUrl, imageName: name });
+  };
+
+  const createLocation = async (data) => {
     try {
       const {
         data: { addLocation },
         errors,
       } = await axiosSendGraphQlRequest({
-        query: `mutation addLocation($placeName: String, $userId: String, $dataUrl: String, $fileName: String) {
-          addLocation( parentName: $placeName, parentImageUrl: $dataUrl, userId: $userId, fileName: $fileName) {
-              _id
-              parentName
+        query: `mutation addLocation($sourceId: String, $userId: String, $imageUrl: String, $imageName: String, $neighborData: String, $parentId: String) {
+          addLocation(userId: $userId, sourceId: $sourceId, neighborData: $neighborData, parentId: $parentId, imageUrl: $imageUrl, fileName: $imageName) {
+            _id
           }
-        }`,
-        variables: { placeName, userId: user._id, dataUrl, fileName },
+    }`,
+        variables: {
+          userId: user._id,
+          ...placeName,
+          ...data,
+          neighborData: JSON.stringify(neighborData),
+        },
       });
       if (addLocation) {
         enqueueSnackbar("Location Created Succesful", { variant: "success" });
         LocationRefetch();
         setOpenPopup(false);
+        setLocation({
+          sourceId: "",
+          neighborIds: [],
+          parentId: "",
+          imageUrl: "",
+          imageName: "",
+        });
+        setNeighbourData({});
+        setLoading(false);
       }
       if (Array.isArray(errors) && errors[0]) {
         enqueueSnackbar(errors[0].message, { variant: "error" });
@@ -148,6 +199,7 @@ function AddLocation({ openPopUp, setOpenPopup }) {
     const file = new File([blob], blob.name, {
       type: blob.type,
     });
+    console.log(file);
     setImgSrc(file);
     enqueueSnackbar("Image Capture Successful", {
       variant: "success",
@@ -175,6 +227,40 @@ function AddLocation({ openPopUp, setOpenPopup }) {
     [NodeData]
   );
 
+  const handleVideoChange = (videoData, neighId) => {
+    if (videoData) {
+      const name = uuidV4();
+
+      const file = new File([videoData], name, {
+        type: "video/mp4",
+      });
+      setNeighbourData((state) => {
+        const data = {
+          ...state,
+          [neighId]: { ...validataData(state.neighId), videoData: file },
+        };
+        console.log(data);
+        return { ...data };
+      });
+    }
+  };
+
+  const uploadFileIndi = (neighKey) => {
+    if (neighborData[neighKey].videoUrl) {
+      enqueueSnackbar("Video Already uploaded", { variant: "error" });
+    } else {
+      if (neighborData[neighKey].videoData) {
+        uploadFIles(
+          neighborData[neighKey].videoData,
+          handleVideoSubmit,
+          neighKey
+        );
+      } else {
+        enqueueSnackbar("Video File upload failed", { variant: "error" });
+      }
+    }
+  };
+
   return (
     <Modal
       open={openPopUp}
@@ -191,7 +277,8 @@ function AddLocation({ openPopUp, setOpenPopup }) {
           display: "grid",
           gridGap: "1rem",
           borderRadius: "1rem",
-          width: "max-content",
+          width: "51rem",
+          height: "",
         }}
       >
         <div
@@ -214,130 +301,96 @@ function AddLocation({ openPopUp, setOpenPopup }) {
             <Close />
           </IconButton>
         </div>
-        <div style={{ display: "flex", flexFlow: "column", gap: "1rem" }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "1rem",
-            }}
-          >
-            <TextField
-              value={placeName.sourceId}
-              variant="outlined"
-              name="sourceId"
-              onChange={handleInputChange}
-              label="Source Node"
-              SelectProps={{ MenuProps }}
-              select
-              style={{ width: 400 }}
-            >
-              {NodeData?.nodes?.map((row, i) => (
-                <MenuItem key={i} value={row?._id}>
-                  <ListItemText primary={row?.placeName} />
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              value={placeName.parentId}
-              variant="outlined"
-              name="parentId"
-              onChange={handleInputChange}
-              label="Parent Name"
-              select
-              style={{ width: 400 }}
-              SelectProps={{ MenuProps }}
-            >
-              {ParentData?.parents?.map((row, i) => (
-                <MenuItem key={i} value={row?._id}>
-                  <ListItemText primary={row?.parentName} />
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              value={placeName.neighborIds}
-              variant="outlined"
-              name="neighborIds"
-              onChange={handleInputChange}
-              label="Neighbor Nodes"
-              select
-              SelectProps={{
-                multiple: true,
-                MenuProps,
-                renderValue: (selected) => (
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                    {selected.map((value) => (
-                      <Chip key={value} label={findData(value)?.placeName} />
-                    ))}
-                  </Box>
-                ),
-              }}
-              style={{ width: 400 }}
-            >
-              {NodeData?.nodes?.map((row, i) => (
-                <MenuItem
-                  key={i}
-                  disabled={placeName.sourceId === row?._id}
-                  value={row?._id}
-                  style={{ display: "flex", gap: "1rem" }}
-                >
-                  <Checkbox
-                    checked={placeName.neighborIds.indexOf(row?._id) > -1}
-                  />
-                  <ListItemText primary={row?.placeName} />
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
+        <Stepper activeStep={activeStep} alternativeLabel>
+          {steps.map((label, i) => (
+            <Step key={label} onClick={() => setActiveStep(i)}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
 
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Button
-              onClick={() => {
-                setChoice("file");
-              }}
-              style={{
-                backgroundColor: "blue",
-                height: 54,
-                width: "17rem",
-                borderRadius: 8,
-                color: "white",
-                fontWeight: "bold",
-              }}
-            >
-              Choose file
-            </Button>
-            <Button
-              onClick={() => {
-                setChoice("image");
-              }}
-              style={{
-                backgroundColor: "blue",
-                height: 54,
-                width: "17rem",
-                borderRadius: 8,
-                color: "white",
-                fontWeight: "bold",
-              }}
-            >
-              Click Image
-            </Button>
-          </div>
-          {imgSrc ? (
+        {activeStep === 0 ? (
+          <div style={{ display: "flex", flexFlow: "column", gap: "1rem" }}>
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "1rem",
               }}
             >
-              <img
-                src={URL.createObjectURL(imgSrc)}
-                alt="parent-img"
-                style={{ width: 300, margin: "auto" }}
-              />
+              <TextField
+                value={placeName.sourceId}
+                variant="outlined"
+                name="sourceId"
+                onChange={handleInputChange}
+                label="Source Node"
+                SelectProps={{ MenuProps }}
+                select
+                style={{ width: 400 }}
+              >
+                {NodeData?.nodes?.map((row, i) => (
+                  <MenuItem key={i} value={row?._id}>
+                    <ListItemText primary={row?.placeName} />
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                value={placeName.parentId}
+                variant="outlined"
+                name="parentId"
+                onChange={handleInputChange}
+                label="Parent Name"
+                select
+                style={{ width: 400 }}
+                SelectProps={{ MenuProps }}
+              >
+                {ParentData?.parents?.map((row, i) => (
+                  <MenuItem key={i} value={row?._id}>
+                    <ListItemText primary={row?.parentName} />
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                value={placeName.neighborIds}
+                variant="outlined"
+                name="neighborIds"
+                onChange={handleInputChange}
+                label="Neighbor Nodes"
+                select
+                SelectProps={{
+                  multiple: true,
+                  MenuProps,
+                  renderValue: (selected) => (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip key={value} label={findData(value)?.placeName} />
+                      ))}
+                    </Box>
+                  ),
+                }}
+                style={{ width: 400 }}
+              >
+                {NodeData?.nodes?.map((row, i) => (
+                  <MenuItem
+                    key={i}
+                    disabled={placeName.sourceId === row?._id}
+                    value={row?._id}
+                    style={{ display: "flex", gap: "1rem" }}
+                  >
+                    <Checkbox
+                      checked={placeName.neighborIds.indexOf(row?._id) > -1}
+                    />
+                    <ListItemText primary={row?.placeName} />
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
               <Button
-                variant="contained"
-                color="primary"
+                onClick={() => {
+                  setChoice("file");
+                }}
                 style={{
                   backgroundColor: "blue",
                   height: 54,
@@ -346,32 +399,180 @@ function AddLocation({ openPopUp, setOpenPopup }) {
                   color: "white",
                   fontWeight: "bold",
                 }}
+              >
+                Choose file
+              </Button>
+              <Button
                 onClick={() => {
-                  setImgSrc(null);
+                  setChoice("image");
+                }}
+                style={{
+                  backgroundColor: "blue",
+                  height: 54,
+                  width: "17rem",
+                  borderRadius: 8,
+                  color: "white",
+                  fontWeight: "bold",
                 }}
               >
-                Retry
+                Click Image
               </Button>
             </div>
-          ) : choice === "file" ? (
-            <Input type="file" onChange={handleChange} />
-          ) : (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <ImageCapture
-                onCapture={onCapture}
-                onError={onError}
-                width={300}
-                userMediaConfig={config}
-              />
-            </div>
-          )}
-        </div>
+            {imgSrc ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  src={URL.createObjectURL(imgSrc)}
+                  alt="parent-img"
+                  style={{ width: 300, margin: "auto" }}
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  style={{
+                    backgroundColor: "blue",
+                    height: 54,
+                    width: "17rem",
+                    borderRadius: 8,
+                    color: "white",
+                    fontWeight: "bold",
+                  }}
+                  onClick={() => {
+                    setImgSrc(null);
+                  }}
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : choice === "file" ? (
+              <Input type="file" onChange={handleChange} />
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <ImageCapture
+                  onCapture={onCapture}
+                  onError={onError}
+                  width={300}
+                  userMediaConfig={config}
+                />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ display: "grid", gap: "1rem" }}>
+            {placeName.neighborIds.map((neighbor, i) => (
+              <Accordion
+                expanded={expanded === i}
+                onChange={handleAccChange(i)}
+                key={i}
+              >
+                <AccordionSummary
+                  expandIcon={<ExpandMore />}
+                  aria-controls="panel1bh-content"
+                  id="panel1bh-header"
+                >
+                  <Typography
+                    sx={{ width: "33%", flexShrink: 0, fontSize: "1.3rem" }}
+                  >
+                    <b>{findData(neighbor)?.placeName}</b>
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails
+                  style={{ display: "flex", flexFlow: "column", gap: "1rem" }}
+                >
+                  <TextField
+                    value={neighborData[neighbor]?.direction}
+                    variant="outlined"
+                    name="direction"
+                    onChange={(e) => handleInputAccChange(e, neighbor)}
+                    label="Direction Neighbour Node"
+                    SelectProps={{ MenuProps }}
+                    select
+                    style={{ width: 400 }}
+                  >
+                    {DIRECTIONS.map((row, i) => (
+                      <MenuItem key={i} value={row}>
+                        <ListItemText primary={row} />
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  <div
+                    style={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <Button
+                      onClick={() => {
+                        setChoice("file");
+                      }}
+                      style={{
+                        backgroundColor: "blue",
+                        height: 54,
+                        width: "12rem",
+                        borderRadius: 8,
+                        color: "white",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Choose file
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setChoice("image");
+                      }}
+                      style={{
+                        backgroundColor: "blue",
+                        height: 54,
+                        width: "12rem",
+                        borderRadius: 8,
+                        color: "white",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Click Video
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        uploadFileIndi(neighbor);
+                      }}
+                      style={{
+                        backgroundColor: "blue",
+                        height: 54,
+                        width: "12rem",
+                        borderRadius: 8,
+                        color: "white",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Upload Video
+                    </Button>
+                  </div>
+                  {choice === "file" ? (
+                    <Input
+                      type="file"
+                      name="inpFIle"
+                      onChange={(e) => handleInputAccChange(e, neighbor)}
+                    />
+                  ) : (
+                    <VideoHandler
+                      handleVideoChange={handleVideoChange}
+                      neighId={neighbor}
+                    />
+                  )}
+                </AccordionDetails>
+              </Accordion>
+            ))}
+          </div>
+        )}
+
         <div
           style={{
             display: "flex",
@@ -396,36 +597,53 @@ function AddLocation({ openPopUp, setOpenPopup }) {
           >
             Cancel
           </Button>
-          <Box sx={{ m: 1, position: "relative" }}>
+          {activeStep === 0 ? (
             <Button
               variant="contained"
-              disabled={loading}
               style={{
-                backgroundColor: loading ? "lightgrey" : "blue",
+                backgroundColor: "blue",
                 height: 54,
                 width: "17rem",
                 borderRadius: 8,
                 color: "white",
                 fontWeight: "bold",
               }}
-              onClick={handleSubmit}
+              onClick={handleNext}
             >
-              Submit
+              Next
             </Button>
-            {loading && (
-              <CircularProgress
-                size={36}
-                sx={{
-                  color: green[500],
-                  position: "absolute",
-                  top: "40%",
-                  left: "50%",
-                  marginTop: "-12px",
-                  marginLeft: "-12px",
+          ) : (
+            <Box sx={{ m: 1, position: "relative" }}>
+              <Button
+                variant="contained"
+                // disabled={loading}
+                style={{
+                  backgroundColor: loading ? "lightgrey" : "blue",
+                  height: 54,
+                  width: "17rem",
+                  borderRadius: 8,
+                  color: "white",
+                  fontWeight: "bold",
                 }}
-              />
-            )}
-          </Box>
+                onClick={handleSubmit}
+              >
+                Submit
+              </Button>
+              {loading && (
+                <CircularProgress
+                  size={36}
+                  sx={{
+                    color: green[500],
+                    position: "absolute",
+                    top: "40%",
+                    left: "50%",
+                    marginTop: "-12px",
+                    marginLeft: "-12px",
+                  }}
+                />
+              )}
+            </Box>
+          )}
         </div>
       </Paper>
     </Modal>
@@ -434,7 +652,8 @@ function AddLocation({ openPopUp, setOpenPopup }) {
 
 export default AddLocation;
 
-const getType = (data) => {
-  const types = data.split("/").reverse();
-  return types[0];
+const validataData = (data) => {
+  console.log(data);
+  if (data) return data;
+  return NEIGHBOR_DETAILS;
 };

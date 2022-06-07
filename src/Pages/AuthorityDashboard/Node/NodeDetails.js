@@ -3,7 +3,6 @@ import IconButton from "@mui/material/IconButton";
 import {
   AddBox,
   Delete,
-  Download,
   Edit,
   Info,
   ReadMore,
@@ -25,8 +24,7 @@ import { makeStyles } from "@mui/styles";
 import { useNodeQuery } from "../../../Context/Locations";
 import AddNode from "./AddNode";
 import EditNode from "./EditNode";
-import DeleteNode from "./DeleteNode"; // eslint-disable-next-line
-import QRGenerateLocations from "../QRGenerateLocations";
+import DeleteNode from "./DeleteNode";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -67,8 +65,6 @@ export default function NodeDetails() {
   const [selected, setSelected] = useState({ _id: "" });
   const [openEditLocation, setOpenEditLocation] = useState(false);
   const [openDeleteLocation, setOpenDeleteLocation] = useState(false);
-  // eslint-disable-next-line
-  const [openQRLocation, setOpenQRLocation] = useState(false);
 
   return (
     <React.Fragment>
@@ -211,17 +207,6 @@ export default function NodeDetails() {
                         <Delete style={{ fontSize: "1.5rem" }} />
                       </Tooltip>
                     </IconButton>
-                    <IconButton
-                      onClick={() => {
-                        setSelected(row);
-                        setOpenQRLocation(true);
-                      }}
-                      style={{ width: "3.5rem", height: "3.5rem" }}
-                    >
-                      <Tooltip title="Download Location QR code">
-                        <Download style={{ fontSize: "1.5rem" }} />
-                      </Tooltip>
-                    </IconButton>
                     <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
                       <Tooltip title="View More">
                         <ReadMore style={{ fontSize: "1.5rem" }} />
@@ -245,13 +230,6 @@ export default function NodeDetails() {
         setOpenPopup={setOpenDeleteLocation}
         selected={selected}
       />{" "}
-      {selected?._id && (
-        <QRGenerateLocations
-          openPopUp={openQRLocation}
-          setOpenPopup={setOpenQRLocation}
-          selected={selected}
-        />
-      )}
     </React.Fragment>
   );
 }
