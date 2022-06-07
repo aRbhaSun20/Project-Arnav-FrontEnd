@@ -1,13 +1,13 @@
 import axios from "axios";
+//http://localhost:5000/graphql
 //
-// https://arnav-backend.herokuapp.com/graphql
 export const AXIOS_ACTIONS = {
   QUERY: "query",
   GET: "get",
   POST: "post",
   MUTATION: "mutation",
   DELETE: "DELETE",
-  URL: "http://localhost:5000/graphql",
+  URL: "https://arnav-backend.herokuapp.com/graphql",
   HEADERS: {
     "Content-Type": "application/json",
   },
