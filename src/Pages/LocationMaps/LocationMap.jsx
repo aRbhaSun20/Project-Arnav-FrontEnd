@@ -5,7 +5,7 @@ import {
   SpeedDialAction,
   SpeedDialIcon,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import NavbarAfter from "../../Components/Navbar/NavbarAfter";
 import LeftBar from "../AuthorityDashboard/LeftBar";
 import { TextField } from "@mui/material";
@@ -20,6 +20,7 @@ import {
 import LocationBox from "./LocationBox";
 import LocationMapContainer from "./LocationMapContainer";
 import QRPopup from "./PopUp/QRPopup";
+import { useNodeParentQuery } from "../../Context/Locations";
 
 const actions = [
   { icon: <QrCodeScanner />, name: "QR Scanner" },
@@ -31,6 +32,7 @@ const actions = [
 
 const LocationMap = () => {
   const [openQr, setQrPopup] = useState(false);
+  const { ParentData } = useNodeParentQuery("62a0c0a0b27facdafb24fae2");
 
   const handleClick = (name) => {
     switch (name) {
@@ -49,6 +51,12 @@ const LocationMap = () => {
         break;
     }
   };
+
+  const data = useMemo(() => {
+    if (ParentData && Array.isArray(ParentData.getParentLocations))
+      return ParentData.getParentLocations;
+    return [];
+  }, [ParentData]);
 
   return (
     <React.Fragment>
@@ -103,8 +111,8 @@ const LocationMap = () => {
                   rowGap: "1rem",
                 }}
               >
-                {new Array(10).fill("").map((ele, i) => (
-                  <LocationBox key={i} />
+                {data.map((ele, i) => (
+                  <LocationBox key={i} {...ele} />
                 ))}
               </div>
             </div>

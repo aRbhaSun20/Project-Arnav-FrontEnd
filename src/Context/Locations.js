@@ -27,7 +27,7 @@ export const useParentQuery = () => {
   );
   return { ParentData, ParentRefetch };
 };
-export const nodeParentQuery = () => {
+export const useNodeParentQuery = (parentId) => {
   const { data: ParentData, refetch: ParentRefetch } = useQuery(
     "node parent data",
     async () => {
@@ -35,15 +35,32 @@ export const nodeParentQuery = () => {
         data: { getParentLocations },
         errors,
       } = await axiosSendGraphQlRequest({
-        query: `query nodeParentData {
-          query{
-            getParentLocations(parentId:"629c4fc55e9381ebf31ee762"){
-               parentId
-             parent{
-               parentName
-             }
-             }
-           }`,
+        query: `query nodeParentData($parentId: String!) {
+          getParentLocations(parentId: $parentId) {
+            _id
+            parent {
+              parentName
+            }
+            source {
+              placeName
+            }
+            neighbors {
+              placeName
+              coordinates
+              imageUrl
+            }
+            neighborIds {
+              direction
+              videoUrl
+            }
+            user{
+              name
+            }
+          }
+      }`,
+        variables: {
+          parentId,
+        },
       });
       return { getParentLocations, errors };
     }

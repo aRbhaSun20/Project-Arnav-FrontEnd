@@ -2,7 +2,13 @@ import { LocalPharmacy } from "@mui/icons-material";
 import { Paper, Typography } from "@mui/material";
 import React from "react";
 
-export default function LocationBox() {
+export default function LocationBox({
+  source,
+  parent,
+  neighbors,
+  neighborIds,
+  user,
+}) {
   return (
     <React.Fragment>
       <Paper
@@ -27,11 +33,23 @@ export default function LocationBox() {
           <LocalPharmacy style={{ fontSize: "2.5rem" }} />
         </div>
         <div style={{ display: "grid", textAlign: "start", rowGap: ".4rem" }}>
-          <Typography style={{ fontSize: "1.4rem", fontWeight: "bold" }}>
-            Location Name
-          </Typography>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Typography style={{ fontSize: "1.4rem", fontWeight: "bold" }}>
+              {source?.placeName}
+            </Typography>{" "}
+            <Typography style={{ fontSize: ".8rem", fontWeight: "bold" }}>
+              {user?.name}
+            </Typography>
+          </div>
+
           <Typography style={{ fontSize: ".85rem" }}>
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit.
+            Textile building
           </Typography>
         </div>
         <div
