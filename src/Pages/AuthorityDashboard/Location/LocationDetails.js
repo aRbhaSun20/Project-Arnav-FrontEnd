@@ -162,11 +162,13 @@ export default function LocationDetails() {
                   }}
                 >
                   <TableCell align="center">
-                    <img
-                      src={row.imageUrl}
-                      style={{ width: "3rem", height: "3rem" }}
-                      alt="location-img"
-                    />
+                    {row?.imageUrl && (
+                      <img
+                        src={row?.imageUrl}
+                        style={{ width: "3rem", height: "3rem" }}
+                        alt="location-img"
+                      />
+                    )}
                   </TableCell>
                   <TableCell>{row?.user?.name}</TableCell>
                   <TableCell>{row?.source?.placeName}</TableCell>
