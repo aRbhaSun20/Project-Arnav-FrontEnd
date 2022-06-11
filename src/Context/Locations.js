@@ -1,4 +1,5 @@
 import { useQuery } from "react-query";
+import { useSelector } from "react-redux";
 import { axiosSendGraphQlRequest } from "../util/AxiosRequest";
 
 export const useParentQuery = () => {
@@ -27,45 +28,39 @@ export const useParentQuery = () => {
   );
   return { ParentData, ParentRefetch };
 };
-export const useNodeParentQuery = (parentId) => {
-  const { data: ParentData, refetch: ParentRefetch } = useQuery(
+
+export const useNodeParentQuery = () => {
+  const location = useSelector((state) => state.location);
+  const { data: ParentNodeData, refetch: ParentNodeRefetch } = useQuery(
     "node parent data",
     async () => {
-      const {
-        data: { getParentLocations },
-        errors,
-      } = await axiosSendGraphQlRequest({
-        query: `query nodeParentData($parentId: String!) {
-          getParentLocations(parentId: $parentId) {
+      if (location.parentId) {
+        const {
+          data: { getParentNodes },
+          errors,
+        } = await axiosSendGraphQlRequest({
+          query: `query nodeParentData($parentId: String!) {
+          getParentNodes(parentId: $parentId) {
             _id
-            parent {
+            userId
+            placeName
+            parent{
               parentName
             }
-            source {
-              placeName
-            }
-            neighbors {
-              placeName
-              coordinates
-              imageUrl
-            }
-            neighborIds {
-              direction
-              videoUrl
-            }
-            user{
-              name
-            }
+            coordinates
+            imageUrl
           }
       }`,
-        variables: {
-          parentId,
-        },
-      });
-      return { getParentLocations, errors };
+          variables: {
+            parentId: location.parentId,
+          },
+        });
+        return { getParentNodes, errors };
+      }
+      return {};
     }
   );
-  return { ParentData, ParentRefetch };
+  return { ParentNodeData, ParentNodeRefetch };
 };
 
 export const useNodeQuery = () => {

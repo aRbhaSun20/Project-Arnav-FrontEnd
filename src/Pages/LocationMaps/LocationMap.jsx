@@ -5,7 +5,7 @@ import {
   SpeedDialAction,
   SpeedDialIcon,
 } from "@mui/material";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import NavbarAfter from "../../Components/Navbar/NavbarAfter";
 import LeftBar from "../AuthorityDashboard/LeftBar";
 import { TextField } from "@mui/material";
@@ -21,6 +21,7 @@ import LocationBox from "./LocationBox";
 import LocationMapContainer from "./LocationMapContainer";
 import QRPopup from "./PopUp/QRPopup";
 import { useNodeParentQuery } from "../../Context/Locations";
+import { useSelector } from "react-redux";
 
 const actions = [
   { icon: <QrCodeScanner />, name: "QR Scanner" },
@@ -32,7 +33,9 @@ const actions = [
 
 const LocationMap = () => {
   const [openQr, setQrPopup] = useState(false);
-  const { ParentData } = useNodeParentQuery("62a0c0a0b27facdafb24fae2");
+  const { ParentNodeData, ParentNodeRefetch } = useNodeParentQuery();
+
+  const location = useSelector((state) => state.location);
 
   const handleClick = (name) => {
     switch (name) {
@@ -53,10 +56,16 @@ const LocationMap = () => {
   };
 
   const data = useMemo(() => {
-    if (ParentData && Array.isArray(ParentData.getParentLocations))
-      return ParentData.getParentLocations;
+    if (ParentNodeData && Array.isArray(ParentNodeData.getParentNodes))
+      return ParentNodeData.getParentNodes;
     return [];
-  }, [ParentData]);
+  }, [ParentNodeData]);
+
+  useEffect(() => {
+    if (location.parentId) {
+      ParentNodeRefetch();
+    }
+  }, [location.parentId]);
 
   return (
     <React.Fragment>
@@ -106,9 +115,9 @@ const LocationMap = () => {
                 style={{
                   maxHeight: "79vh",
                   overflow: "auto",
-                  paddingRight: "1rem",
                   display: "grid",
                   rowGap: "1rem",
+                  padding: "1rem",
                 }}
               >
                 {data.map((ele, i) => (

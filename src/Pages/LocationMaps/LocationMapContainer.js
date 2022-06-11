@@ -1,8 +1,24 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Leaflet from "leaflet";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { IconButton, Typography } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
+import { useNodeParentQuery } from "../../Context/Locations";
+import "./MapAnalytics.css";
+
+import darkBluePopUp from "./darkblue.svg";
+import orangePopUp from "./orange.svg";
+import lightbluePopUp from "./lightblue.svg";
+import greenPopUp from "./green.svg";
+import redPopUp from "./red.svg";
+
+const iconPopups = [
+  darkBluePopUp,
+  orangePopUp,
+  lightbluePopUp,
+  greenPopUp,
+  redPopUp,
+];
 
 // eslint-disable-next-line
 const MapComponent = ({ icon, markerPos, details, id }) => {
@@ -91,6 +107,7 @@ const MapComponent = ({ icon, markerPos, details, id }) => {
 
 export default function LocationMapContainer() {
   const position = [51.505, -0.09];
+  const { ParentNodeData } = useNodeParentQuery();
 
   // eslint-disable-next-line
   const [markerPos, setMarkerPos] = useState(null);
@@ -102,12 +119,19 @@ export default function LocationMapContainer() {
       });
     }
   }, []);
+
+  const data = useMemo(() => {
+    if (ParentNodeData && Array.isArray(ParentNodeData.getParentNodes))
+      return ParentNodeData.getParentNodes;
+    return [];
+  }, [ParentNodeData]);
+
   return (
     <React.Fragment>
       <div
         style={{
           width: "100%",
-          height: "93vh",
+          height: "100%",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-end",
@@ -132,31 +156,18 @@ export default function LocationMapContainer() {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {/* {MapAnalyticsPopUp.PopUpData.map((action, i) => (
+          {data.map((action, i) => (
             <React.Fragment key={i}>
-              {action.delivered_to_lat_lon && (
-                <MapComponent
-                  icon={darkBluePopUp}
-                  markerPos={action.delivered_to_lat_lon}
-                  details={{
-                    key: "Billing Address :",
-                    value: action["Billing Address"],
-                  }}
-                  id={action["Invoice Number"]}
-                />
-              )}
-              {action.sold_by_lat_lon && (
-                <MapComponent
-                  icon={orangePopUp}
-                  markerPos={action.sold_by_lat_lon}
-                  details={{
-                    key: "Sold Address :",
-                    value: action["Sold by"],
-                  }}
-                  id={action["Invoice Number"]}
-                />
-              )}
-              {MapAnalyticsPopUp.currentPopUp["Invoice Number"] ===
+              <MapComponent
+                icon={iconPopups[i % iconPopups.length]}
+                markerPos={action?.coordinates}
+                details={{
+                  key: "Place Name :",
+                  value: action.placeName,
+                }}
+                id={action?._id}
+              />
+              {/* {MapAnalyticsPopUp.currentPopUp["Invoice Number"] ===
                 action["Invoice Number"] &&
                 action.delivered_to_lat_lon &&
                 action.sold_by_lat_lon && (
@@ -170,20 +181,9 @@ export default function LocationMapContainer() {
                       action.sold_by_lat_lon,
                     ]}
                   />
-                )}
+                )} */}
             </React.Fragment>
-          ))} */}
-
-          {/* <SpeedDial
-            ariaLabel="SpeedDial basic example"
-            sx={{ position: "absolute", bottom: 16, right: 16 }}
-            icon={<SpeedDial />}
-          >
-            <SpeedDialAction
-              icon={<LocationOn />}
-              tooltipTitle={"demo"}
-            />
-          </SpeedDial> */}
+          ))}
           <StartUp />
         </MapContainer>
       </div>
