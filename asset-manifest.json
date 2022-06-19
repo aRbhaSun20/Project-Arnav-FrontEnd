@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.css": "/Project-Arnav-FrontEnd/static/css/main.3602b731.css",
+    "main.js": "/Project-Arnav-FrontEnd/static/js/main.47b725b7.js",
+    "static/js/27.277c03fb.chunk.js": "/Project-Arnav-FrontEnd/static/js/27.277c03fb.chunk.js",
+    "static/media/high-speed-train.png": "/Project-Arnav-FrontEnd/static/media/high-speed-train.deb41be1c01732794813.png",
+    "index.html": "/Project-Arnav-FrontEnd/index.html",
+    "static/media/orange.svg": "/Project-Arnav-FrontEnd/static/media/orange.d66bfa3c79339daf2166cde13813c080.svg",
+    "static/media/darkblue.svg": "/Project-Arnav-FrontEnd/static/media/darkblue.e37c4d56253b02a19b98d392559f152e.svg",
+    "static/media/green.svg": "/Project-Arnav-FrontEnd/static/media/green.bb5c48e29840ac62923474bb78b14608.svg",
+    "static/media/lightblue.svg": "/Project-Arnav-FrontEnd/static/media/lightblue.8350c275bb3b9c47dd0cd8b4950b79bb.svg",
+    "static/media/red.svg": "/Project-Arnav-FrontEnd/static/media/red.8844151be616b22a98e0e4a016e0d509.svg"
+  },
+  "entrypoints": [
+    "static/css/main.3602b731.css",
+    "static/js/main.47b725b7.js"
+  ]
+}
