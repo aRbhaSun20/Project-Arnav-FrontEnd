@@ -110,12 +110,18 @@ export const useLocationQuery = () => {
             source{
               placeName
             }
+            sourceId
             parent {
               parentName
               parentUser {
                 name
                 _id
               }
+            }
+            neighborIds {
+              direction
+              destinationId
+              videoUrl
             }
             parentId
             fileName
