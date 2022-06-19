@@ -2,6 +2,7 @@
   "name": "arnav",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://aRbhaSun20.github.io/Project-Arnav-FrontEnd",
   "dependencies": {
     "@date-io/luxon": "^2.11.1",
     "@emotion/react": "^11.7.1",
@@ -16,13 +17,13 @@
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.25.0",
-    "file-saver": "^2.0.5",
     "firebase": "^9.8.2",
     "graphql-request": "^4.2.0",
     "leaflet": "^1.7.1",
     "luxon": "^2.3.0",
     "notistack": "^2.0.3",
     "react": "^17.0.2",
+    "react-component-export-image": "^1.0.6",
     "react-dom": "^17.0.2",
     "react-image-data-capture": "^1.2.2",
     "react-leaflet": "^3.2.5",
@@ -43,6 +44,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

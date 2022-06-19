@@ -79,6 +79,10 @@ export const useNodeQuery = () => {
               _id
               name
             }
+            parentId
+            parent{
+              parentName
+            }
             placeName
             coordinates
             userId
