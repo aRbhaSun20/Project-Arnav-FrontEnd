@@ -48,6 +48,8 @@ function DeleteNode({ openPopUp, setOpenPopup, selected }) {
           })
           .catch((error) => {
             enqueueSnackbar("FIle Deletion Failed", { variant: "error" });
+
+            deleteNodes();
             console.log(error.message);
           });
       } catch {
@@ -64,13 +66,13 @@ function DeleteNode({ openPopUp, setOpenPopup, selected }) {
         data: { deleteNodes },
         errors,
       } = await axiosSendGraphQlRequest({
-        query: `mutation deleteNodes($_id: String!) {
-          deleteNodes( _id:$_id ) {
+        query: `mutation deleteNodes($id: String!) {
+          deleteNodes( _id: $id ) {
               _id
               placeName
           }
         }`,
-        variables: { _id: selected?._id },
+        variables: { id: selected?._id },
       });
       if (deleteNodes) {
         enqueueSnackbar("Node Delete Succesful", { variant: "success" });

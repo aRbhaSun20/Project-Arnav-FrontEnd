@@ -5,7 +5,7 @@ import {
   SpeedDialAction,
   SpeedDialIcon,
 } from "@mui/material";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import NavbarAfter from "../../Components/Navbar/NavbarAfter";
 import LeftBar from "../AuthorityDashboard/LeftBar";
 import { TextField } from "@mui/material";
@@ -20,9 +20,14 @@ import {
 import LocationBox from "./LocationBox";
 import LocationMapContainer from "./LocationMapContainer";
 import QRPopup from "./PopUp/QRPopup";
-import { useNodeParentQuery } from "../../Context/Locations";
+import {
+  useLocationQuery,
+  useNodeParentQuery,
+  useNodeQuery,
+} from "../../Context/Locations";
 import { useSelector } from "react-redux";
-import { BfsSearchQuery } from "../../Context/Locations";
+import { bfs } from "../../bfs/bfs";
+
 const actions = [
   { icon: <QrCodeScanner />, name: "QR Scanner" },
   { icon: <ViewInAr />, name: "Augmented Relaity" },
@@ -34,7 +39,10 @@ const actions = [
 const LocationMap = () => {
   const [openQr, setQrPopup] = useState(false);
   const { ParentNodeData, ParentNodeRefetch } = useNodeParentQuery();
-  const bfs = BfsSearchQuery();
+
+  const { LocationData } = useLocationQuery();
+  const { NodeData } = useNodeQuery();
+
   const location = useSelector((state) => state.location);
 
   const handleClick = (name) => {
@@ -55,11 +63,54 @@ const LocationMap = () => {
     }
   };
 
-  const data = useMemo(() => {
+  const parentNodes = useMemo(() => {
     if (ParentNodeData && Array.isArray(ParentNodeData.getParentNodes))
       return ParentNodeData.getParentNodes;
     return [];
   }, [ParentNodeData]);
+
+  const getLocationBySource = useCallback(
+    (sourceId) => {
+      if (Array.isArray(LocationData?.locations)) {
+        return LocationData?.locations?.find(
+          (location) => location.sourceId === sourceId
+        );
+      }
+    },
+    [LocationData]
+  );
+
+  const getConnectedPath = useMemo(() => {
+    if (
+      Array.isArray(LocationData?.locations) &&
+      Array.isArray(NodeData?.nodes)
+    ) {
+      const pathConnected = {};
+      NodeData?.nodes.forEach((nodes) => {
+        const currentLocation = getLocationBySource(nodes?._id);
+        const neighbors = currentLocation
+          ? currentLocation?.neighborIds?.map((neigh) => neigh.destinationId)
+          : [];
+        pathConnected[nodes._id] = {
+          _id: nodes?._id,
+          neighbors,
+        };
+      });
+      return pathConnected;
+    }
+  }, [NodeData, LocationData]);
+
+  const getShortestPath = useCallback(() => {
+    if (location.fromId && location.toId) {
+      const resultPath = getArrayData(
+        bfs(location.fromId, location.toId, getConnectedPath)
+      );
+      if (resultPath) return resultPath;
+    }
+    return [];
+  }, [location.fromId, location.toId, getConnectedPath]);
+
+  console.log(getShortestPath());
 
   useEffect(() => {
     if (location.parentId) {
@@ -120,7 +171,7 @@ const LocationMap = () => {
                   padding: "1rem",
                 }}
               >
-                {data.map((ele, i) => (
+                {parentNodes.map((ele, i) => (
                   <LocationBox key={i} {...ele} />
                 ))}
               </div>
@@ -153,3 +204,5 @@ const LocationMap = () => {
 };
 
 export default LocationMap;
+
+const getArrayData = (data) => (Array.isArray(data) ? data.reverse() : null);

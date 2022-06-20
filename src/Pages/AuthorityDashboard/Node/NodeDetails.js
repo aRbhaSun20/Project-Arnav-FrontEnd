@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 import IconButton from "@mui/material/IconButton";
-import {
-  AddBox,
-  Delete,
-  Edit,
-  Info,
-  ReadMore,
-} from "@mui/icons-material";
+import { AddBox, Delete, Download, Edit, Info, ReadMore } from "@mui/icons-material";
 import {
   AppBar,
   Paper,
@@ -25,6 +19,7 @@ import { useNodeQuery } from "../../../Context/Locations";
 import AddNode from "./AddNode";
 import EditNode from "./EditNode";
 import DeleteNode from "./DeleteNode";
+import QRGenerateLocations from "../QRGenerateLocations";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -65,6 +60,8 @@ export default function NodeDetails() {
   const [selected, setSelected] = useState({ _id: "" });
   const [openEditLocation, setOpenEditLocation] = useState(false);
   const [openDeleteLocation, setOpenDeleteLocation] = useState(false);
+
+  const [openQRLocation, setOpenQRLocation] = useState(false);
 
   return (
     <React.Fragment>
@@ -119,7 +116,7 @@ export default function NodeDetails() {
               <TableRow
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "10rem repeat(4,1fr)",
+                  gridTemplateColumns: "8rem repeat(5,1fr)",
                   width: "100%",
                 }}
               >
@@ -128,6 +125,12 @@ export default function NodeDetails() {
                   style={{ fontSize: "1.2rem", fontWeight: "bold" }}
                 >
                   Image
+                </TableCell>{" "}
+                <TableCell
+                  align="center"
+                  style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                >
+                  Parent Name
                 </TableCell>
                 <TableCell
                   align="center"
@@ -141,7 +144,6 @@ export default function NodeDetails() {
                 >
                   User created
                 </TableCell>
-
                 <TableCell
                   align="center"
                   style={{ fontSize: "1.2rem", fontWeight: "bold" }}
@@ -162,7 +164,7 @@ export default function NodeDetails() {
                   key={i}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "10rem repeat(4,1fr)",
+                    gridTemplateColumns: "8rem repeat(5,1fr)",
                     width: "100%",
                     backgroundColor: i % 2 === 0 ? "#f1f1f1" : null,
                   }}
@@ -174,6 +176,7 @@ export default function NodeDetails() {
                       alt="location-img"
                     />
                   </TableCell>{" "}
+                  <TableCell align="center">{row?.parent?.parentName}</TableCell>
                   <TableCell align="center">{row?.placeName}</TableCell>
                   <TableCell align="center">{row?.user?.name}</TableCell>
                   <TableCell align="center">{row.status}</TableCell>
@@ -206,6 +209,17 @@ export default function NodeDetails() {
                       <Tooltip title="Delete Location">
                         <Delete style={{ fontSize: "1.5rem" }} />
                       </Tooltip>
+                    </IconButton>{" "}
+                    <IconButton
+                      onClick={() => {
+                        setSelected(row);
+                        setOpenQRLocation(true);
+                      }}
+                      style={{ width: "3.5rem", height: "3.5rem" }}
+                    >
+                      <Tooltip title="Download Location QR code">
+                        <Download style={{ fontSize: "1.5rem" }} />
+                      </Tooltip>
                     </IconButton>
                     <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
                       <Tooltip title="View More">
@@ -230,6 +244,14 @@ export default function NodeDetails() {
         setOpenPopup={setOpenDeleteLocation}
         selected={selected}
       />{" "}
+      {selected?._id && (
+        <QRGenerateLocations
+          openPopUp={openQRLocation}
+          setOpenPopup={setOpenQRLocation}
+          selected={selected}
+          type="Node"
+        />
+      )}
     </React.Fragment>
   );
 }

@@ -3,7 +3,6 @@ import IconButton from "@mui/material/IconButton";
 import {
   AddBox,
   Delete,
-  Download,
   Edit,
   Info,
   ReadMore,
@@ -25,8 +24,7 @@ import { makeStyles } from "@mui/styles";
 import { useParentQuery } from "../../../Context/Locations";
 import AddParent from "./AddParent";
 import EditParent from "./EditParent";
-import DeleteParent from "./DeleteParent"; // eslint-disable-next-line
-import QRGenerateParent from "../QRGenerateLocations";
+import DeleteParent from "./DeleteParent"; 
 const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
@@ -66,8 +64,6 @@ export default function ParentDetails() {
   const [selected, setSelected] = useState({ _id: "" });
   const [openEditLocation, setOpenEditLocation] = useState(false);
   const [openDeleteLocation, setOpenDeleteLocation] = useState(false);
-  // eslint-disable-next-line
-  const [openQRLocation, setOpenQRLocation] = useState(false);
 
   return (
     <React.Fragment>
@@ -209,17 +205,6 @@ export default function ParentDetails() {
                         <Delete style={{ fontSize: "1.5rem" }} />
                       </Tooltip>
                     </IconButton>
-                    <IconButton
-                      onClick={() => {
-                        setSelected(row);
-                        setOpenQRLocation(true);
-                      }}
-                      style={{ width: "3.5rem", height: "3.5rem" }}
-                    >
-                      <Tooltip title="Download Parent QR code">
-                        <Download style={{ fontSize: "1.5rem" }} />
-                      </Tooltip>
-                    </IconButton>
                     <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
                       <Tooltip title="View More">
                         <ReadMore style={{ fontSize: "1.5rem" }} />
@@ -246,13 +231,6 @@ export default function ParentDetails() {
         setOpenPopup={setOpenDeleteLocation}
         selected={selected}
       />{" "}
-      {selected?._id && (
-        <QRGenerateParent
-          openPopUp={openQRLocation}
-          setOpenPopup={setOpenQRLocation}
-          selected={selected}
-        />
-      )}
     </React.Fragment>
   );
 }

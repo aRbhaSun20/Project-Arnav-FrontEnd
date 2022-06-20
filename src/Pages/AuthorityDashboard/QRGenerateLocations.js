@@ -1,10 +1,10 @@
 import { Close } from "@mui/icons-material";
 import { Button, IconButton, Modal, Paper, Typography } from "@mui/material";
-import React from "react";
+import React, { useRef } from "react";
 import { useSnackbar } from "notistack";
-  // eslint-disable-next-line
 import { useQRCode } from "react-qrcode";
-import { saveAs } from "file-saver";
+import logo from "./logo2.jpeg";
+import { exportComponentAsPNG } from "react-component-export-image";
 
 const style = {
   position: "absolute",
@@ -17,16 +17,17 @@ const style = {
   p: 4,
 };
 
-function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
+function QRGenerateLocations({ openPopUp, setOpenPopup, selected, type }) {
   const { enqueueSnackbar } = useSnackbar();
-    // eslint-disable-next-line
-  const dataUrl = useQRCode(`${selected?._id}`);
+  const qrRef = useRef();
 
   const handleSubmit = async () => {
-    saveAs(dataUrl, `${selected?.placeName}.png`);
-    enqueueSnackbar("Location QR code Download successful", {
-      variant: "success",
-    });
+    if (qrRef.current) {
+      exportComponentAsPNG(qrRef, { fileName: selected.placeName });
+      enqueueSnackbar(`${type} QR code Download successful`, {
+        variant: "success",
+      });
+    }
   };
 
   return (
@@ -58,7 +59,7 @@ function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
           }}
         >
           <Typography variant="h5">
-            <b>Generate Location QR Code</b>{" "}
+            <b>Generate {type} QR Code</b>{" "}
           </Typography>
           <IconButton
             onClick={() => {
@@ -76,11 +77,12 @@ function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
             alignItems: "center",
           }}
         >
-          <Typography>
-            <b>Download {selected?.placeName} QR Code</b>{" "}
-          </Typography>
           {selected._id && (
-            <img src={dataUrl} style={{ width: "20rem" }} alt="qr-codes" />
+            <QRComponent
+              ref={qrRef}
+              data={`${selected.parentId},${selected?._id}`}
+              placeName={selected?.placeName}
+            />
           )}
         </div>
         <div
@@ -128,3 +130,39 @@ function QRGenerateLocations({ openPopUp, setOpenPopup, selected }) {
 }
 
 export default QRGenerateLocations;
+
+const QRComponent = React.forwardRef(({ data, placeName }, ref) => {
+  const dataUrl = useQRCode(data);
+  return (
+    <div
+      ref={ref}
+      style={{
+        background: "#67d139",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: "1.5rem",
+        gap: ".5rem",
+        border: "4px solid",
+      }}
+    >
+      <img src={logo} style={{ width: "12rem" }} />
+      <Typography
+        style={{
+          fontWeight: "bold",
+          fontSize: "2rem",
+          textTransform: "uppercase",
+          color: "black",
+          letterSpacing: "2px",
+        }}
+      >
+        {placeName}
+      </Typography>
+      <img
+        src={dataUrl}
+        style={{ width: "18rem", border: "4px solid" }}
+        alt="qr-codes"
+      />
+    </div>
+  );
+});
