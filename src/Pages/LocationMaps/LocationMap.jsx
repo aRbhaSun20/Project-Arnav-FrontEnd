@@ -22,7 +22,7 @@ import LocationMapContainer from "./LocationMapContainer";
 import QRPopup from "./PopUp/QRPopup";
 import { useNodeParentQuery } from "../../Context/Locations";
 import { useSelector } from "react-redux";
-
+import { BfsSearchQuery } from "../../Context/Locations";
 const actions = [
   { icon: <QrCodeScanner />, name: "QR Scanner" },
   { icon: <ViewInAr />, name: "Augmented Relaity" },
@@ -34,7 +34,7 @@ const actions = [
 const LocationMap = () => {
   const [openQr, setQrPopup] = useState(false);
   const { ParentNodeData, ParentNodeRefetch } = useNodeParentQuery();
-
+  const bfs = BfsSearchQuery();
   const location = useSelector((state) => state.location);
 
   const handleClick = (name) => {
