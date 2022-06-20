@@ -9,9 +9,11 @@ import {
   Input,
   Box,
   CircularProgress,
+  MenuItem,
+  ListItemText,
 } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useNodeQuery } from "../../../Context/Locations";
+import { useNodeQuery, useParentQuery } from "../../../Context/Locations";
 import { axiosSendGraphQlRequest } from "../../../util/AxiosRequest";
 import { useSnackbar } from "notistack";
 import { useSelector } from "react-redux";
@@ -20,7 +22,16 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { green } from "@mui/material/colors";
 import { v4 as uuidV4 } from "uuid";
 import ImageCapture from "react-image-data-capture";
-
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
 const style = {
   position: "absolute",
   top: "50%",
@@ -33,13 +44,17 @@ const style = {
 };
 
 function AddNode({ openPopUp, setOpenPopup }) {
-  const [placeName, setLocation] = useState("");
+  const [placeName, setLocation] = useState({
+    placeName: "",
+    parentId: "",
+  });
   const [loading, setLoading] = useState(false);
   const [coordinates, setCoordinates] = useState([]);
   const { NodeRefetch } = useNodeQuery();
   const user = useSelector((state) => state.user);
   const [choice, setChoice] = useState("file");
   const [imgSrc, setImgSrc] = useState(null);
+  const { ParentData } = useParentQuery();
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -93,14 +108,14 @@ function AddNode({ openPopUp, setOpenPopup }) {
         data: { addNodes },
         errors,
       } = await axiosSendGraphQlRequest({
-        query: `mutation addNodes($placeName: String, $userId: String, $dataUrl: String, $fileName: String, $coordinates: [Float]) {
-          addNodes( placeName: $placeName, imageUrl: $dataUrl, userId: $userId, fileName: $fileName, coordinates: $coordinates) {
+        query: `mutation addNodes($placeName: String, $userId: String, $dataUrl: String, $fileName: String, $coordinates: [Float],$parentId: String) {
+          addNodes( placeName: $placeName, imageUrl: $dataUrl, userId: $userId, fileName: $fileName, coordinates: $coordinates parentId: $parentId) {
               _id
               placeName
           }
         }`,
         variables: {
-          placeName,
+          ...placeName,
           userId: user._id,
           dataUrl,
           fileName,
@@ -126,14 +141,14 @@ function AddNode({ openPopUp, setOpenPopup }) {
         data: { addNodes },
         errors,
       } = await axiosSendGraphQlRequest({
-        query: `mutation addNodes($placeName: String, $userId: String, $coordinates: [Float]) {
-          addNodes( placeName: $placeName,  userId: $userId,  coordinates: $coordinates) {
+        query: `mutation addNodes($placeName: String, $userId: String, $coordinates: [Float] $parentId: String) {
+          addNodes( placeName: $placeName,  userId: $userId,  coordinates: $coordinates, parentId: $parentId) {
               _id
               placeName
           }
         }`,
         variables: {
-          placeName,
+          ...placeName,
           userId: user._id,
           coordinates,
         },
@@ -178,6 +193,10 @@ function AddNode({ openPopUp, setOpenPopup }) {
   // Use useMemo to avoid unexpected behaviour while rerendering
   const config = useMemo(() => ({ video: true }), []);
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setLocation((state) => ({ ...state, [name]: value }));
+  };
   return (
     <Modal
       open={openPopUp}
@@ -218,13 +237,38 @@ function AddNode({ openPopUp, setOpenPopup }) {
           </IconButton>
         </div>
         <div style={{ display: "flex", flexFlow: "column", gap: "1rem" }}>
-          <TextField
-            value={placeName}
-            variant="outlined"
-            onChange={(e) => setLocation(e.target.value)}
-            label="Node Name"
-            style={{ width: 400 }}
-          />
+          <div
+            style={{
+              display: "flex",
+              gap: "1rem",
+              justifyContent: "space-between",
+            }}
+          >
+            <TextField
+              value={placeName.placeName}
+              variant="outlined"
+              name="placeName"
+              onChange={handleInputChange}
+              label="Node Name"
+              style={{ width: "100%" }}
+            />
+            <TextField
+              value={placeName.parentId}
+              variant="outlined"
+              name="parentId"
+              onChange={handleInputChange}
+              label="Parent Name"
+              select
+              style={{ width: "100%" }}
+              SelectProps={{ MenuProps }}
+            >
+              {ParentData?.parents?.map((row, i) => (
+                <MenuItem key={i} value={row?._id}>
+                  <ListItemText primary={row?.parentName} />
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <Button
               onClick={() => {

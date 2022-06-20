@@ -20,7 +20,7 @@ const style = {
 
 function QRPopup({ openPopUp, setOpenPopup }) {
   // const [selected, setSelected] = useState("user");
-  const [result, setResult] = useState("62a0c0a0b27facdafb24fae2");
+  const [result, setResult] = useState("");
 
   const { ParentData } = useParentQuery();
   const { enqueueSnackbar } = useSnackbar();
@@ -29,11 +29,12 @@ function QRPopup({ openPopUp, setOpenPopup }) {
   const handleScan = (data) => {
     if (data && data.text) {
       if (result !== data.text) {
+        const dataQR = data.text.split(",");
         console.log(data.text);
-        setResult(data.text);
+        setResult(dataQR[0]);
         dispatch({
           type: LOCATION_ACTIONS.ADD_LOCATION,
-          payload: { parentId: data.text },
+          payload: { parentId: dataQR[0], fromId: dataQR[1] },
         });
         enqueueSnackbar("location fetched from QR succesfully", {
           variant: "success",
@@ -270,7 +271,12 @@ function QRPopup({ openPopUp, setOpenPopup }) {
                     borderRadius: 8,
                     fontWeight: "bold",
                   }}
-                  onClick={() => setResult("")}
+                  onClick={() => {
+                    dispatch({
+                      type: LOCATION_ACTIONS.Default_location,
+                    });
+                    setResult("");
+                  }}
                 >
                   Retake Results
                 </Button>

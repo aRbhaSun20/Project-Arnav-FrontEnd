@@ -96,6 +96,38 @@ export const useNodeQuery = () => {
   return { NodeData, NodeRefetch };
 };
 
+export const BfsSearchQuery = () => {
+  const location = useSelector((state) => state.location);
+  const { data: BfsData, refetch: NodeRefetch } = useQuery(
+    "bfs data",
+    async () => {
+      if (location.fromId && location.toId) {
+        const {
+          data: { path },
+          errors,
+        } = await axiosSendGraphQlRequest({
+          query: `query BfsSearchQuery($sourceId: String!, $destinationId:String!){
+            path(sourceId:$sourceId , destinationId: $destinationId) {
+              neighborsData {
+                _id
+              }
+            }
+        }`,
+          variables: {
+            sourceId: location.fromId,
+            destinationId: location.toId,
+          },
+        });
+
+        return { path, errors };
+      }
+      return null;
+    }
+  );
+
+  return { BfsData, NodeRefetch };
+};
+
 export const useLocationQuery = () => {
   const { data: LocationData, refetch: LocationRefetch } = useQuery(
     "location datas",
