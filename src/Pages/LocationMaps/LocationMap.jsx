@@ -27,19 +27,21 @@ import {
 } from "../../Context/Locations";
 import { useSelector } from "react-redux";
 import { bfs } from "../../bfs/bfs";
+import ARContainer from "./ARContainer";
 
 const actions = [
   { icon: <QrCodeScanner />, name: "QR Scanner" },
   { icon: <ViewInAr />, name: "Augmented Relaity" },
   { icon: <ThreeDRotation />, name: "3D Maps" },
   { icon: <Directions />, name: "2D Maps" },
-  { icon: <Explore />, name: "Explore" },
 ];
 
 const LocationMap = () => {
+  const [selected, setSelected] = useState("2d");
   const [openQr, setQrPopup] = useState(false);
   const { ParentNodeData, ParentNodeRefetch } = useNodeParentQuery();
 
+  const [search, setSearch] = useState("");
   const { LocationData } = useLocationQuery();
   const { NodeData } = useNodeQuery();
 
@@ -51,12 +53,13 @@ const LocationMap = () => {
         setQrPopup(true);
         break;
       case actions[1].name:
+        setSelected("ar");
         break;
       case actions[2].name:
+        setSelected("2d");
         break;
       case actions[3].name:
-        break;
-      case actions[4].name:
+        setSelected("2d");
         break;
       default:
         break;
@@ -65,9 +68,15 @@ const LocationMap = () => {
 
   const parentNodes = useMemo(() => {
     if (ParentNodeData && Array.isArray(ParentNodeData.getParentNodes))
-      return ParentNodeData.getParentNodes;
+      return ParentNodeData.getParentNodes.filter(
+        (ele) =>
+          ele?.parent?.parentName
+            ?.toLowerCase()
+            .includes(search.toLowerCase()) ||
+          ele?.placeName?.toLowerCase().includes(search.toLowerCase())
+      );
     return [];
-  }, [ParentNodeData]);
+  }, [ParentNodeData, search]);
 
   const getLocationBySource = useCallback(
     (sourceId) => {
@@ -110,8 +119,6 @@ const LocationMap = () => {
     return [];
   }, [location.fromId, location.toId, getConnectedPath]);
 
-  console.log(getShortestPath());
-
   useEffect(() => {
     if (location.parentId) {
       ParentNodeRefetch();
@@ -153,6 +160,7 @@ const LocationMap = () => {
             >
               <TextField
                 placeholder="Search Location"
+                onChange={(e) => setSearch(e.target.value)}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -177,7 +185,7 @@ const LocationMap = () => {
               </div>
             </div>
             <div>
-              <LocationMapContainer />
+              {selected === "2d" ? <LocationMapContainer /> : <ARContainer />}
             </div>
             <SpeedDial
               ariaLabel="SpeedDial basic example"

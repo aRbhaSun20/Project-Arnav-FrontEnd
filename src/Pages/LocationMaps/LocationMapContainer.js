@@ -11,6 +11,7 @@ import orangePopUp from "./orange.svg";
 import lightbluePopUp from "./lightblue.svg";
 import greenPopUp from "./green.svg";
 import redPopUp from "./red.svg";
+import { useSelector } from "react-redux";
 
 const iconPopups = [
   darkBluePopUp,
@@ -21,11 +22,12 @@ const iconPopups = [
 ];
 
 // eslint-disable-next-line
-const MapComponent = ({ icon, markerPos, details, id }) => {
+const MapComponent = ({ icon, markerPos, details, imageUrl, parent, _id }) => {
   // eslint-disable-next-line
   const map = useMap();
   const MarkerRef = useRef();
   const [show, SetShow] = useState(true);
+  const { fromId, toId, selected } = useSelector((state) => state.location);
 
   // const MapAnalyticsPopUp = useSelector((state) => state.MapAnalyticsPopUps);
 
@@ -40,20 +42,17 @@ const MapComponent = ({ icon, markerPos, details, id }) => {
     className: "leaflet-div-icon",
   });
 
-  // useEffect(() => {
-  //   if (MarkerRef.current) {
-  //     if (
-  //       id === MapAnalyticsPopUp.currentPopUp["Invoice Number"] &&
-  //       MapAnalyticsPopUp.hover
-  //     ) {
-  //       map.flyTo(markerPos, map.getZoom());
-  //       MarkerRef.current.openPopup();
-  //     } else {
-  //       MarkerRef.current.closePopup();
-  //     }
-  //   }
-  //   // eslint-disable-next-line
-  // }, [MapAnalyticsPopUp]);
+  useEffect(() => {
+    if (MarkerRef.current) {
+      if (_id === selected) {
+        map.flyTo(markerPos, map.getZoom());
+        MarkerRef.current.openPopup();
+      } else {
+        MarkerRef.current.closePopup();
+      }
+    }
+    // eslint-disable-next-line
+  }, [selected]);
 
   return (
     markerPos && (
@@ -77,7 +76,8 @@ const MapComponent = ({ icon, markerPos, details, id }) => {
                 style={{
                   fontSize: "1.2rem",
                   fontWeight: "bold",
-                  height: "1rem",
+                  margin: "0",
+                  color: fromId === _id ? "blue" : toId === _id && "red",
                 }}
               >
                 {details.key}
@@ -92,12 +92,43 @@ const MapComponent = ({ icon, markerPos, details, id }) => {
                 <ExpandMore />
               </IconButton>
             </div>
-
-            <Typography
-              style={{ textAlign: "center", display: show ? "none" : "block" }}
-            >
-              {details.value}
-            </Typography>
+            {show && (
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "1rem" }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                  }}
+                >
+                  <img
+                    src={imageUrl}
+                    alt="parent connected node"
+                    style={{
+                      width: "3.5rem",
+                      height: "3.5rem",
+                      borderRadius: "2rem",
+                    }}
+                  />
+                </div>
+                <div style={{ display: "grid", gap: ".5rem" }}>
+                  <Typography
+                    style={{
+                      fontSize: "1.4rem",
+                      margin: 0,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {details.value}
+                  </Typography>
+                  <Typography style={{ fontSize: ".85rem", margin: 0 }}>
+                    {parent?.parentName}
+                  </Typography>
+                </div>
+              </div>
+            )}
           </div>
         </Popup>
       </Marker>
@@ -165,7 +196,7 @@ export default function LocationMapContainer() {
                   key: "Place Name :",
                   value: action.placeName,
                 }}
-                id={action?._id}
+                {...action}
               />
               {/* {MapAnalyticsPopUp.currentPopUp["Invoice Number"] ===
                 action["Invoice Number"] &&

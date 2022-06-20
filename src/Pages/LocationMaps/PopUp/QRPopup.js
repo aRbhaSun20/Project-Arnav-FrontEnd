@@ -1,10 +1,10 @@
 import { Button, IconButton, Modal, Paper, Typography } from "@mui/material";
 import { useSnackbar } from "notistack";
 import React, { useMemo, useState } from "react";
-import { useParentQuery } from "../../../Context/Locations";
+import { useNodeQuery, useParentQuery } from "../../../Context/Locations";
 import { QrReader } from "react-qr-reader";
 import { Close } from "@mui/icons-material";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { LOCATION_ACTIONS } from "../../../Context/LocationReducers";
 
 const style = {
@@ -20,21 +20,21 @@ const style = {
 
 function QRPopup({ openPopUp, setOpenPopup }) {
   // const [selected, setSelected] = useState("user");
-  const [result, setResult] = useState("");
+  const { parentId ,fromId} = useSelector((state) => state.location);
 
   const { ParentData } = useParentQuery();
+  const { NodeData } = useNodeQuery();
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
 
   const handleScan = (data) => {
     if (data && data.text) {
-      if (result !== data.text) {
+      if (parentId !== data.text) {
         const dataQR = data.text.split(",");
         console.log(data.text);
-        setResult(dataQR[0]);
         dispatch({
           type: LOCATION_ACTIONS.ADD_LOCATION,
-          payload: { parentId: dataQR[0], fromId: dataQR[1] },
+          payload: { parentId: dataQR[0], parentId: dataQR[1] },
         });
         enqueueSnackbar("location fetched from QR succesfully", {
           variant: "success",
@@ -52,12 +52,20 @@ function QRPopup({ openPopUp, setOpenPopup }) {
   };
 
   const parentSelectedData = useMemo(() => {
-    if (result && ParentData && Array.isArray(ParentData?.parents)) {
-      const data = ParentData?.parents?.find((ele) => ele?._id === result);
+    if (parentId && ParentData && Array.isArray(ParentData?.parents)) {
+      const data = ParentData?.parents?.find((ele) => ele?._id === parentId);
       if (data) return data;
     }
     return {};
-  }, [result, ParentData]);
+  }, [parentId, ParentData]);
+
+  const sourceSelectedData = useMemo(() => {
+    if (fromId && NodeData && Array.isArray(NodeData?.nodes)) {
+      const data = NodeData?.nodes?.find((ele) => ele?._id === fromId);
+      if (data) return data;
+    }
+    return {};
+  }, [fromId, NodeData]);
 
   return (
     <React.Fragment>
@@ -98,7 +106,7 @@ function QRPopup({ openPopUp, setOpenPopup }) {
             </IconButton>
           </div>
 
-          {result ? (
+          {parentId ? (
             <div
               style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
             >
@@ -181,7 +189,7 @@ function QRPopup({ openPopUp, setOpenPopup }) {
                     </div>
                   </div>
                 )}
-                {parentSelectedData && (
+                {sourceSelectedData && (
                   <div
                     style={{
                       display: "flex",
@@ -211,7 +219,7 @@ function QRPopup({ openPopUp, setOpenPopup }) {
                           <b>Source Name:</b>
                         </Typography>
                         <Typography>
-                          {parentSelectedData?.parentName}
+                          {sourceSelectedData?.placeName}
                         </Typography>
                       </div>
                       <div
@@ -224,7 +232,7 @@ function QRPopup({ openPopUp, setOpenPopup }) {
                           <b>Source Description:</b>
                         </Typography>
                         <Typography>
-                          {parentSelectedData?.parentName}
+                          {sourceSelectedData?.parent?.parentName}
                         </Typography>
                       </div>
                       <div
@@ -237,7 +245,7 @@ function QRPopup({ openPopUp, setOpenPopup }) {
                           <b>User Created:</b>
                         </Typography>
                         <Typography>
-                          {parentSelectedData?.parentUser?.name}
+                          {sourceSelectedData?.user?.name}
                         </Typography>
                       </div>
                       <div
@@ -251,8 +259,8 @@ function QRPopup({ openPopUp, setOpenPopup }) {
                           <b>Source Image:</b>
                         </Typography>
                         <img
-                          style={{ width: "100%", height: "25rem" }}
-                          src={parentSelectedData?.parentImageUrl}
+                          style={{ width: "25rem", height: "25rem" }}
+                          src={sourceSelectedData?.imageUrl}
                           alt="parent-location"
                         />
                       </div>
@@ -275,7 +283,6 @@ function QRPopup({ openPopUp, setOpenPopup }) {
                     dispatch({
                       type: LOCATION_ACTIONS.Default_location,
                     });
-                    setResult("");
                   }}
                 >
                   Retake Results

@@ -7,10 +7,10 @@ export const LocationReducers = (InitialState = getDAta(), actions) => {
   switch (actions.type) {
     case LOCATION_ACTIONS.ADD_LOCATION:
       const data = { ...InitialState, ...actions.payload };
-      localStorage.setItem("arnavLocation", JSON.stringify(data));
+      sessionStorage.setItem("arnavLocation", JSON.stringify(data));
       return data;
     case LOCATION_ACTIONS.Default_location:
-      localStorage.removeItem("arnavLocation");
+      sessionStorage.removeItem("arnavLocation");
       return {
         parentId: "",
         fromId: "",
@@ -22,7 +22,7 @@ export const LocationReducers = (InitialState = getDAta(), actions) => {
 };
 
 const getDAta = () => {
-  const data = localStorage.getItem("arnavLocation");
+  const data = sessionStorage.getItem("arnavLocation");
   if (data) {
     const returnData = JSON.parse(data);
     if (returnData) return returnData;
@@ -31,5 +31,6 @@ const getDAta = () => {
     parentId: "",
     fromId: "",
     toId: "",
+    selected: "",
   };
 };
