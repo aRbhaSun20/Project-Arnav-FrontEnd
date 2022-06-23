@@ -4,6 +4,7 @@ import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Environment, OrbitControls } from "@react-three/drei";
+import Webcam from "react-webcam";
 
 function ARContainer() {
   return (
@@ -27,12 +28,16 @@ function ARContainer() {
         <Box position={[-1.2, 0, 0]} />
         <Box position={[1.2, 0, 0]} />
       </Canvas> */}
+      <div>
+
+      <Webcam style={{position:"absolute"}}/>
+      </div>
       <Canvas>
         <Suspense fallback={null}>
           <ambientLight />
           <Model />
           <OrbitControls />
-          <Environment preset="sunset" background />
+          {/* <Environment preset="sunset" background /> */}
         </Suspense>
       </Canvas>
     </React.Fragment>
@@ -44,7 +49,7 @@ export default ARContainer;
 const Model = () => {
   const mesh = useRef();
   const gltf = useLoader(GLTFLoader, "./arrow.gltf");
-  useFrame((state, delta) => (mesh.current.rotation.x += 0.01));
+  // useFrame((state, delta) => (mesh.current.rotation.x += 0.01));
   return (
     <mesh ref={mesh}>
       <primitive object={gltf.scene} scale={0.4} />
