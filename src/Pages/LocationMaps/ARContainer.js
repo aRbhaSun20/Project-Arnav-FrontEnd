@@ -9,28 +9,16 @@ import Webcam from "react-webcam";
 function ARContainer() {
   return (
     <React.Fragment>
-      {/* <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-end",
-          flexDirection: "column",
-          position: "relative",
-        }}
-      >
-        AR
-      </div>{" "} */}
-      {/* <Canvas>
-        <ambientLight />
-        <pointLight position={[10, 10, 10]} />
-        <Box position={[-1.2, 0, 0]} />
-        <Box position={[1.2, 0, 0]} />
-      </Canvas> */}
-      <div>
-
-      <Webcam style={{position:"absolute"}}/>
+      <div style={{ position: "relative" }}>
+        <Webcam
+          style={{
+            position: "absolute",
+            left: 0,
+            height: "89vh",
+            width: "100%",
+            marginLeft: "5rem",
+          }}
+        />
       </div>
       <Canvas>
         <Suspense fallback={null}>

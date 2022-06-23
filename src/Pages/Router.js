@@ -5,6 +5,7 @@ import AuthorityDashboard from "./AuthorityDashboard/AuthorityDashboard";
 import AuthorityHistory from "./AuthorityHistory/AuthorityHistory";
 import AuthorityRequest from "./AuthorityRequest/AuthorityRequest";
 import Home from "./Home";
+import LocationAccumulate from "./LocationAccumulate";
 import LocationMap from "./LocationMaps/LocationMap";
 
 export default function Router() {
@@ -22,6 +23,7 @@ export default function Router() {
           <Route path="explorersrequest" element={<AuthorityRequest />} />
           <Route path="explorerschat" element={<AuthorityChat />} />
           <Route path="locationMap" element={<LocationMap />} />
+          <Route path="locationAcc" element={<LocationAccumulate />} />
         </Routes>
       </BrowserRouter>
     </React.Fragment>
