@@ -12,6 +12,7 @@ const error = (err) => {
   console.warn("ERROR(" + err.code + "): " + err.message);
 };
 let locationWatcher = navigator.geolocation.watchPosition(getCoords, error, {
+  timeout: 100,
   enableHighAccuracy: false,
   maximumAge: 0,
 });
